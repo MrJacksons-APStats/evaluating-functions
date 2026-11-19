@@ -1,0 +1,1558 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Evaluating Functions Challenge</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=STIX+Two+Text:ital,wght@1,500&family=Tilt+Neon&display=swap" rel="stylesheet">
+<style>
+:root{
+  --navy:#00274C; --maize:#FFCB05; --maize-ink:#00274C;
+  --bg:#eef2f6; --surface:#ffffff; --surface-2:#f6f8fb; --text:#13202e; --muted:#566476;
+  --line:#d6dee8; --good:#1b7f45; --good-bg:#e5f4eb; --bad:#c0392b; --bad-bg:#fcebea;
+  --warn-bg:#fff6d6; --chip:#e3e9f1; --step-num:#00274C;
+  color-scheme: light;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0a1521; --surface:#122233; --surface-2:#0f1c2b; --text:#e7eef6; --muted:#9db0c4;
+    --line:#26394f; --good:#5ad08d; --good-bg:#10301f; --bad:#ff8a80; --bad-bg:#3a1817;
+    --warn-bg:#3a3110; --chip:#1b2d42; --step-num:#FFCB05;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0a1521; --surface:#122233; --surface-2:#0f1c2b; --text:#e7eef6; --muted:#9db0c4;
+  --line:#26394f; --good:#5ad08d; --good-bg:#10301f; --bad:#ff8a80; --bad-bg:#3a1817;
+  --warn-bg:#3a3110; --chip:#1b2d42; --step-num:#FFCB05;
+  color-scheme: dark;
+}
+*,*::before,*::after{box-sizing:inherit}
+html{scroll-padding-top:calc(env(safe-area-inset-top,0px) + 120px)}
+body{margin:0;background:var(--bg);color:var(--text);
+  font-family:"Atkinson Hyperlegible",Verdana,"Segoe UI",sans-serif;font-size:17px;line-height:1.5}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--navy)}
+h1,h2,h3,.m,button,.tab{font-family:"Bricolage Grotesque","Trebuchet MS",sans-serif}
+button{font-size:1rem;cursor:pointer}
+button:focus-visible,input:focus-visible{outline:3px solid var(--maize);outline-offset:2px}
+
+/* Header */
+.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--navy);color:#fff;border-bottom:4px solid var(--maize)}
+.top-inner{max-width:960px;margin:0 auto;padding:.7rem 1rem .4rem;display:flex;gap:.75rem;align-items:center;justify-content:space-between;flex-wrap:wrap}
+.brand h1{margin:0;font-size:clamp(1.15rem,3.6vw,1.6rem);font-weight:800;letter-spacing:-.01em;line-height:1.15}
+.brand small{display:block;color:var(--maize);font-family:"Bricolage Grotesque",sans-serif;font-weight:700;font-size:.9rem}
+.top-actions{display:flex;gap:.5rem}
+.hbtn{background:transparent;color:#fff;border:1.5px solid rgba(255,255,255,.45);border-radius:999px;padding:.35rem .85rem;font-weight:700}
+.hbtn:hover{border-color:#fff}
+.hbtn.gold{background:var(--maize);color:var(--maize-ink);border-color:var(--maize)}
+.levels{max-width:960px;margin:0 auto;padding:.25rem 1rem .7rem;display:flex;gap:.45rem;overflow-x:auto;scrollbar-width:thin}
+.lvbtn{flex:0 0 auto;border:none;border-radius:10px;padding:.4rem .8rem;font-weight:700;background:rgba(255,255,255,.12);color:#fff;white-space:nowrap}
+.lvbtn.done{background:rgba(90,208,141,.22)}
+.lvbtn.current{background:var(--maize);color:var(--maize-ink)}
+.lvbtn:disabled{opacity:.5;cursor:not-allowed}
+.lvbtn.soon{background:transparent;border:1.5px dashed rgba(255,255,255,.4);color:rgba(255,255,255,.75);opacity:1;cursor:default;font-weight:500}
+
+main{max-width:960px;margin:0 auto;padding:1.1rem 1rem 3rem}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:1.1rem 1.2rem;margin-bottom:1rem}
+
+/* Level intro */
+.lv-head{display:flex;align-items:baseline;gap:.7rem;flex-wrap:wrap}
+.lv-num{background:var(--maize);color:var(--maize-ink);font-family:"Bricolage Grotesque",sans-serif;font-weight:800;border-radius:8px;padding:.1rem .55rem;font-size:1rem}
+.lv-head h2{margin:0;font-size:clamp(1.3rem,4vw,1.75rem);font-weight:800;letter-spacing:-.01em}
+.intro{margin:.5rem 0 .8rem;color:var(--text);max-width:68ch}
+.dots{display:flex;gap:.4rem;margin-bottom:.35rem}
+.dot{width:16px;height:16px;border-radius:50%;border:2px solid var(--muted)}
+.dot.on{background:var(--good);border-color:var(--good)}
+.status{color:var(--muted);font-size:.95rem;margin:0}
+.status.done{color:var(--good);font-weight:700}
+
+/* Worked example */
+.ex-top{display:flex;justify-content:space-between;align-items:center;gap:.5rem;flex-wrap:wrap}
+.ex-top h3{margin:0;font-size:1.2rem}
+.linkbtn{background:none;border:none;color:var(--muted);text-decoration:underline;padding:.2rem}
+.tabs{display:flex;gap:.4rem;margin:.75rem 0 .6rem;overflow-x:auto}
+.tab{flex:0 0 auto;border:1.5px solid var(--line);background:var(--surface-2);color:var(--text);border-radius:999px;padding:.3rem .85rem;font-weight:700;font-size:.95rem}
+.tab[aria-selected="true"]{background:var(--navy);border-color:var(--navy);color:#fff}
+:root[data-theme="dark"] .tab[aria-selected="true"]{background:var(--maize);border-color:var(--maize);color:var(--maize-ink)}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .tab[aria-selected="true"]{background:var(--maize);border-color:var(--maize);color:var(--maize-ink)}}
+.given{margin:.2rem 0 .8rem;font-size:1.05rem}
+.steps{border:1px solid var(--line);border-radius:12px;overflow:hidden}
+.steps-head,.step{display:grid;grid-template-columns:minmax(0,1.05fr) minmax(0,1fr)}
+.steps-head{background:var(--surface-2);font-weight:700;font-size:.85rem;color:var(--muted)}
+.steps-head div{padding:.45rem .9rem}
+.step{border-top:1px solid var(--line)}
+.step .work{padding:.7rem .9rem;overflow-x:auto;border-right:1px solid var(--line)}
+.step .note{padding:.7rem .9rem;background:var(--surface-2);font-size:.97rem}
+.step .note b{color:var(--step-num)}
+.step.final .work .m{font-weight:800}
+.m{font-size:1.15rem;font-weight:500;white-space:nowrap;letter-spacing:.01em}
+.m sup{font-size:.68em;line-height:0}
+/* Variables in textbook italic so f, g and x read clearly */
+.v{font-family:"STIX Two Text","Cambria Math","Times New Roman",serif;font-style:italic;font-weight:500;font-size:1.1em;line-height:1}
+.v.f{padding-right:.1em;margin-left:.02em}
+.v.g{padding-right:.03em}
+/* Radical: one drawn check mark that joins the bar above the radicand with no gap */
+.rad{position:relative;display:inline-block;white-space:nowrap;padding-left:.6em;margin-left:.05em}
+.rad svg{position:absolute;left:0;top:.875px;width:.6em;height:calc(100% - .875px);overflow:visible}
+.rad svg path{fill:none;stroke:currentColor;stroke-width:1.75px;stroke-linejoin:round;stroke-linecap:round;vector-effect:non-scaling-stroke}
+.rad-in{display:inline-block;border-top:1.75px solid currentColor;padding:.12em .14em 0 .1em;line-height:1.2}
+/* Stacked fractions */
+.frac{display:inline-flex;flex-direction:column;vertical-align:middle;text-align:center;font-size:.78em;line-height:1.05;margin:0 .08em}
+.frac>span:first-child{border-bottom:1.5px solid currentColor;padding:0 .1em}
+/* Substitution check */
+.stepbox{border:1px solid var(--line);border-radius:12px;padding:.8rem .9rem;margin-top:.8rem}
+.stepbox.locked{background:var(--good-bg);border-color:var(--good)}
+.stepbox h4{margin:0 0 .55rem;font-family:"Bricolage Grotesque",sans-serif;font-size:1.05rem;display:flex;align-items:center;gap:.5rem}
+.badge{background:var(--maize);color:var(--maize-ink);border-radius:50%;width:1.6rem;height:1.6rem;display:inline-flex;align-items:center;justify-content:center;font-weight:800;font-size:.9rem}
+.stepbox.locked .badge{background:var(--good);color:#fff}
+.ansrow.wrap{flex-wrap:wrap}
+.ans.wide{width:min(100%,19em);max-width:100%}
+.ins{display:flex;gap:.4rem;margin-top:.5rem}
+.insbtn{border:1.5px solid var(--line);background:var(--surface-2);color:var(--text);border-radius:8px;padding:.25rem .7rem;font-family:"Bricolage Grotesque",sans-serif;font-weight:700;font-size:1.05rem}
+.preview{margin:.5rem 0 0;color:var(--muted);font-size:.95rem;min-height:1.6em}
+.preview .m{color:var(--text)}
+.blank{display:inline-block;width:1.4em;height:1.05em;border:1.5px dashed currentColor;border-radius:4px;vertical-align:-.15em;margin:0 .1em}
+@media (max-width:640px){
+  .steps-head{display:none}
+  .step{grid-template-columns:1fr}
+  .step .work{border-right:none;padding-bottom:.35rem}
+  .step .note{background:transparent;padding-top:0;color:var(--muted)}
+}
+
+/* Problem */
+.prob h3{margin:0 0 .4rem;font-size:1.2rem}
+.prob .task{font-size:1.1rem;margin:.2rem 0 .9rem}
+.ansrow{display:flex;align-items:center;gap:.5rem;flex-wrap:nowrap}
+.ansrow .m{font-size:1.35rem}
+.ans{font-family:"Bricolage Grotesque",sans-serif;font-size:1.35rem;width:7.5em;max-width:55vw;padding:.35rem .55rem;border:2px solid var(--line);border-radius:10px;background:var(--surface);color:var(--text)}
+.ans:disabled{opacity:.75}
+.ans.ok{border-color:var(--good);background:var(--good-bg)}
+.tip{color:var(--muted);font-size:.9rem;margin:.45rem 0 .8rem}
+.actions{display:flex;gap:.6rem;flex-wrap:wrap}
+.go{background:var(--maize);color:var(--maize-ink);border:none;border-radius:10px;padding:.55rem 1.1rem;font-weight:800}
+.go.secondary{background:var(--chip);color:var(--text)}
+.fb{margin-top:.9rem;border-radius:12px;padding:.75rem .9rem;display:none}
+.fb.show{display:block}
+.fb.good{background:var(--good-bg);border-left:5px solid var(--good)}
+.fb.bad{background:var(--bad-bg);border-left:5px solid var(--bad)}
+.fb.warn{background:var(--warn-bg);border-left:5px solid var(--maize)}
+.fb p{margin:.15rem 0}
+.fb .lead{font-weight:700}
+.fb .steps{margin-top:.6rem;background:var(--surface)}
+.fb .step .note{background:var(--surface)}
+
+.step.head{display:block;padding:.5rem .9rem;background:var(--chip);font-family:"Bricolage Grotesque",sans-serif;font-weight:700;font-size:.98rem}
+.after{margin:.7rem 0 0;font-weight:700}
+.methods{display:flex;gap:.6rem;flex-wrap:wrap;margin-top:.4rem}
+.switch{margin-top:.6rem}
+.task-lines{line-height:2}
+/* Math field: typing ^ opens an exponent box */
+.mfield{display:inline-block;min-width:min(100%,19em);max-width:100%;min-height:2.3em;font-family:"Bricolage Grotesque",sans-serif;font-size:1.35rem;line-height:1.7;
+  padding:.2rem .55rem;border:2px solid var(--line);border-radius:10px;background:var(--surface);color:var(--text);white-space:pre;overflow-x:auto;vertical-align:middle;cursor:text}
+.mfield:focus{outline:3px solid var(--maize);outline-offset:2px}
+.mfield .xbox{display:inline-block;min-width:.8em;min-height:1.05em;padding:0 .14em;font-size:.72em;line-height:1;vertical-align:.75em;border:1.5px dashed transparent;border-radius:4px;text-align:center}
+.mfield .xbox.empty,.mfield .xbox.active{border-color:var(--muted)}
+/* Teacher tab */
+.teacher-wrap{max-width:960px;margin:0 auto;padding:0 1rem 2.5rem}
+.teacher-wrap .tpanel{background:var(--surface);border:1px solid var(--line);border-top:4px solid var(--navy);border-radius:14px;padding:1rem 1.1rem;max-width:30rem}
+.teacher-wrap h3{margin:0 0 .35rem;font-size:1.1rem}
+.teacher-wrap p{margin:.2rem 0 .7rem}
+.teacher-wrap input{font-size:1.05rem;padding:.4rem .6rem;border:2px solid var(--line);border-radius:10px;background:var(--surface);color:var(--text);width:min(100%,14rem);margin-right:.4rem}
+.t-on{color:var(--muted);font-size:.9rem}
+.t-msg{color:var(--bad);font-weight:700;margin-top:.6rem}
+.m s{text-decoration-color:var(--bad);text-decoration-thickness:2px}
+.step .work .frac .frac{font-size:1em}
+.step .work .m > .frac{font-size:.92em;line-height:1.25;margin:.15em .1em}
+/* Overlays */
+.overlay{position:fixed;inset:0;z-index:20;display:flex;align-items:center;justify-content:center;padding:1rem}
+.overlay[hidden]{display:none}
+.confirm{background:rgba(0,20,40,.55)}
+.confirm .box{background:var(--surface);color:var(--text);border-radius:16px;padding:1.2rem;max-width:400px;border-top:5px solid var(--maize)}
+.confirm h3{margin:0 0 .4rem}
+.champion{background:var(--navy);color:#fff;text-align:center;flex-direction:column;overflow:auto}
+.champion .stage{width:min(760px,96vw);max-height:62vh;height:auto;display:block;margin:0 auto}
+.champ-msg{opacity:0;transition:opacity .8s ease}
+.champ-msg.show{opacity:1}
+.champ-actions{justify-content:center}
+.sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.champion h2{font-size:clamp(1.6rem,6vw,2.6rem);margin:.6rem 0 .3rem;color:var(--maize);font-weight:800}
+.champion p{max-width:36rem;font-size:1.15rem;margin:.3rem auto 1.2rem}
+#fx{position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-index:30}
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="top-inner">
+    <div class="brand"><small>Level-Up Challenge</small><h1>Evaluating Functions Challenge</h1></div>
+    <div class="top-actions">
+      <button class="hbtn gold" id="champBtn" hidden>🎸 Completed page</button>
+      <button class="hbtn" id="resetBtn">Start over</button>
+    </div>
+  </div>
+  <nav class="levels" id="levelNav" aria-label="Levels"></nav>
+</header>
+
+<main id="main"></main>
+<footer class="teacher-wrap"><div id="teacher"></div></footer>
+
+<div class="overlay confirm" id="confirm" hidden role="dialog" aria-modal="true" aria-labelledby="confirmTitle">
+  <div class="box">
+    <h3 id="confirmTitle">Start over?</h3>
+    <p>This erases your progress on every level in this browser.</p>
+    <div class="actions">
+      <button class="go" id="confirmYes">Yes, start over</button>
+      <button class="go secondary" id="confirmNo">Keep my progress</button>
+    </div>
+  </div>
+</div>
+
+<div class="overlay champion" id="champion" hidden role="dialog" aria-modal="true" aria-labelledby="champTitle">
+  <h2 id="champTitle" class="sr-only">Activity complete. Evaluation equals: You are a Rockstar!</h2>
+  <svg class="stage" viewBox="0 0 720 380" aria-hidden="true">
+    <defs>
+      <filter id="neon" x="-20%" y="-60%" width="140%" height="220%">
+        <feGaussianBlur stdDeviation="4" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+      </filter>
+      <filter id="bulbGlow" x="-100%" y="-100%" width="300%" height="300%"><feGaussianBlur stdDeviation="3" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+      <linearGradient id="fmBody" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#1d5590"/><stop offset="1" stop-color="#0a2c52"/></linearGradient>
+    </defs>
+    <rect x="0" y="318" width="720" height="62" fill="#001a33"/>
+    <line x1="0" y1="318" x2="720" y2="318" stroke="#FFCB05" stroke-opacity=".45" stroke-width="2"/>
+
+    <!-- The walker is drawn before the machine, so it disappears inside it -->
+    <g id="fmFig" transform="translate(40 0)">
+      <g id="fmLegL"><line x1="0" y1="282" x2="0" y2="316" stroke="#e8eef6" stroke-width="8" stroke-linecap="round"/></g>
+      <g id="fmLegR"><line x1="0" y1="282" x2="0" y2="316" stroke="#cfd9e6" stroke-width="8" stroke-linecap="round"/></g>
+      <line x1="0" y1="244" x2="0" y2="284" stroke="#e8eef6" stroke-width="10" stroke-linecap="round"/>
+      <g id="fmArmL"><line x1="0" y1="250" x2="0" y2="276" stroke="#cfd9e6" stroke-width="7" stroke-linecap="round"/></g>
+      <g id="fmArmR"><line x1="0" y1="250" x2="0" y2="276" stroke="#e8eef6" stroke-width="7" stroke-linecap="round"/></g>
+      <circle cx="0" cy="226" r="14" fill="#e8eef6"/>
+      <g id="fmShades" opacity="0">
+        <rect x="-12" y="221" width="10" height="7" rx="2" fill="#111"/><rect x="2" y="221" width="10" height="7" rx="2" fill="#111"/>
+        <line x1="-2" y1="223" x2="2" y2="223" stroke="#111" stroke-width="2"/>
+      </g>
+    </g>
+
+    <g id="fmMachine">
+      <rect x="302" y="108" width="8" height="24" fill="#FFCB05" opacity=".8"/>
+      <rect x="410" y="108" width="8" height="24" fill="#FFCB05" opacity=".8"/>
+      <rect x="150" y="16" width="420" height="96" rx="14" fill="#040d18" stroke="#FFCB05" stroke-width="3"/>
+      <text id="fmIdle" x="360" y="76" text-anchor="middle" font-family="Tilt Neon, Bricolage Grotesque, sans-serif" font-size="30" fill="#FFCB05" opacity=".35">FUNCTION MACHINE</text>
+      <text id="fmEval" x="360" y="80" text-anchor="middle" font-family="Tilt Neon, Bricolage Grotesque, sans-serif" font-size="44" fill="#FFCB05" filter="url(#neon)" opacity="0">EVALUATING</text>
+      <g id="fmDone" opacity="0" filter="url(#neon)">
+        <text x="360" y="56" text-anchor="middle" font-family="Tilt Neon, Bricolage Grotesque, sans-serif" font-size="30" fill="#8ff3ff">Evaluation =</text>
+        <text x="360" y="96" text-anchor="middle" font-family="Tilt Neon, Bricolage Grotesque, sans-serif" font-size="34" fill="#FFCB05">You are a Rockstar!</text>
+      </g>
+      <rect x="250" y="130" width="220" height="188" rx="14" fill="url(#fmBody)" stroke="#FFCB05" stroke-width="4"/>
+      <rect x="254" y="194" width="30" height="124" rx="4" fill="#00152b"/>
+      <rect x="436" y="194" width="30" height="124" rx="4" fill="#00152b"/>
+      <text x="269" y="188" text-anchor="middle" font-family="Bricolage Grotesque, sans-serif" font-weight="800" font-size="13" fill="#FFCB05">IN</text>
+      <text x="451" y="188" text-anchor="middle" font-family="Bricolage Grotesque, sans-serif" font-weight="800" font-size="13" fill="#FFCB05">OUT</text>
+      <g id="fmBulbs">
+        <circle cx="300" cy="152" r="7" fill="#3a4f66"/><circle cx="330" cy="152" r="7" fill="#3a4f66"/><circle cx="360" cy="152" r="7" fill="#3a4f66"/>
+        <circle cx="390" cy="152" r="7" fill="#3a4f66"/><circle cx="420" cy="152" r="7" fill="#3a4f66"/>
+      </g>
+      <text x="360" y="212" text-anchor="middle" font-family="Bricolage Grotesque, sans-serif" font-weight="700" font-size="40" fill="#FFCB05"><tspan font-family="STIX Two Text, Times New Roman, serif" font-style="italic">f</tspan>(<tspan font-family="STIX Two Text, Times New Roman, serif" font-style="italic">x</tspan>)</text>
+      <g id="fmGear1"><circle cx="335" cy="272" r="17" fill="none" stroke="#FFCB05" stroke-width="8" stroke-dasharray="6 5"/><circle cx="335" cy="272" r="9" fill="#FFCB05"/></g>
+      <g id="fmGear2"><circle cx="385" cy="272" r="17" fill="none" stroke="#FFCB05" stroke-width="8" stroke-dasharray="6 5"/><circle cx="385" cy="272" r="9" fill="#FFCB05"/></g>
+    </g>
+    <g id="fmSparks" opacity="0" fill="#FFCB05">
+      <path d="M560 210 l4 10 10 4 -10 4 -4 10 -4 -10 -10 -4 10 -4z"/>
+      <path d="M660 236 l3 7 7 3 -7 3 -3 7 -3 -7 -7 -3 7 -3z"/>
+      <path d="M640 180 l3 8 8 3 -8 3 -3 8 -3 -8 -8 -3 8 -3z" fill="#8ff3ff"/>
+    </g>
+  </svg>
+  <p class="champ-msg" id="champMsg">You finished every level of the Evaluating Functions Challenge. Show this screen to your teacher/parent/sibling or friend and let them know you are a ROCKSTAR!</p>
+  <div class="actions champ-actions">
+    <button class="go secondary" id="champReplay">Watch again</button>
+    <button class="go" id="champClose">Back to the levels</button>
+  </div>
+</div>
+
+<canvas id="fx" aria-hidden="true"></canvas>
+
+<script>
+(function(){
+"use strict";
+var MINUS = "\u2212";
+var F = '<i class="v f">f</i>', G = '<i class="v g">g</i>', X = '<i class="v">x</i>';
+var FG = "(" + F + " + " + G + ")";
+function $(s){ return document.querySelector(s); }
+function abs(n){ return Math.abs(n); }
+function fmt(n){ return n < 0 ? MINUS + abs(n) : String(n); }
+function op(n){ return n < 0 ? " " + MINUS + " " : " + "; }
+function P(n){ return "(" + fmt(n) + ")"; }
+function coef(a){ return a === 1 ? "" : (a === -1 ? MINUS : fmt(a)); }
+function sq(s){ return s + "<sup>2</sup>"; }
+function absX(n){ return (abs(n) === 1 ? "" : abs(n)) + X; }
+function fmtX(n){ return n === 0 ? "0" + X : n === 1 ? X : n === -1 ? MINUS + X : fmt(n) + X; }
+function polyShow(a, b, c){ return coef(a) + sq(X) + (b ? op(b) + absX(b) : "") + (c ? op(c) + abs(c) : ""); }
+function rad(inner){
+  return '<span class="rad"><svg viewBox="0 0 60 100" preserveAspectRatio="none" aria-hidden="true"><path d="M3 60 L15 52 L31 97 L56 0 L60 0"/></svg><span class="rad-in">' + inner + '</span></span>';
+}
+function frac(n, d){ return '<span class="frac"><span>' + n + '</span><span>' + d + '</span></span>'; }
+function ri(lo, hi){ return lo + Math.floor(Math.random() * (hi - lo + 1)); }
+function pick(a){ return a[Math.floor(Math.random() * a.length)]; }
+function pickHK(){ var x; do { x = ri(-10, 10); } while (x === 0 || x === 1); return x; }   // −10 to −1, or 2 to 10
+function gcd(a, b){ a = abs(a); b = abs(b); while (b){ var t = b; b = a % b; a = t; } return a; }
+function m(s){ return '<span class="m">' + s + '</span>'; }
+function esc(s){ return String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;"); }
+function cart(parts){ return parts.reduce(function(acc, opts){ var r = []; acc.forEach(function(a){ opts.forEach(function(o){ r.push(a + o); }); }); return r; }, [""]); }
+function sgn(n){ return (n < 0 ? "-" : "+") + abs(n); }
+function coefAlts(a){ return a === 1 ? ["", "1"] : a === -1 ? ["-", "-1"] : [String(a)]; }
+function addWord(k){ return k > 0 ? "adding" : "subtracting"; }
+function signRule(x, y){ return (x < 0 && y < 0) ? "a negative times a negative is positive" : (x < 0 || y < 0) ? "a positive times a negative is negative" : ""; }
+function ruleSentence(x, y){ var r = signRule(x, y); return r ? " " + cap(r) + "." : ""; }
+function keepParen(v){ return v < 0 ? " Keep it in parentheses so the negative sign stays with the number." : ""; }
+function cap(w){ return w.charAt(0).toUpperCase() + w.slice(1); }
+function pm(n){ return n < 0 ? P(n) : String(n); }   // a value written after an operation sign
+
+/* ---------- Evaluating ax² + bx + c step by step (b or c may be 0) ---------- */
+function polySteps(a, b, c, v, nm){
+  var s2 = v * v, A = a * s2, B = b * v, r = A + B + c;
+  var t1 = b ? op(b) + (abs(b) === 1 ? "" : abs(b)) + P(v) : "", t0 = c ? op(c) + abs(c) : "";
+  var expA = a === 1 ? String(s2) : a === -1 ? MINUS + "(" + s2 + ")" : fmt(a) + "(" + s2 + ")";
+  var rows = [
+    { math: nm + P(v) + " = " + coef(a) + sq(P(v)) + t1 + t0,
+      note: "Substitute " + fmt(v) + " for every " + X + "." + keepParen(v) },
+    { math: "= " + expA + t1 + t0,
+      note: "Exponents come first: " + sq(P(v)) + " = " + P(v) + P(v) + " = " + s2 + "." + (v < 0 ? " Squaring a negative number gives a positive result." : "") +
+        (a < 0 ? " The " + fmt(a) + " multiplies the square. It isn’t squared." : "") }
+  ];
+  if (a !== 1 || b){
+    var note = "Multiply next. " + (a === 1 ? "" : a === -1 ? "The opposite of " + s2 + " is " + fmt(A) + ". " : fmt(a) + "(" + s2 + ") = " + fmt(A) + ". ");
+    if (b) note += b < 0
+      ? "The middle term is " + MINUS + (abs(b) === 1 ? "" : abs(b)) + P(v) + (signRule(b, v) ? ": " + signRule(b, v) : "") + ", so it becomes" + op(B) + abs(B) + "."
+      : (b === 1 ? "" : b) + P(v) + " = " + fmt(B) + (signRule(b, v) ? ": " + signRule(b, v) : "") + ".";
+    rows.push({ math: "= " + fmt(A) + (b ? op(B) + abs(B) : "") + t0, note: note });
+  }
+  if (b && c) rows.push({ math: "= " + fmt(A + B) + t0, note: "Add and subtract from left to right: " + fmt(A) + op(B) + abs(B) + " = " + fmt(A + B) + "." });
+  var prev = b && c ? fmt(A + B) + t0 : b ? fmt(A) + op(B) + abs(B) : c ? fmt(A) + t0 : null;
+  if (prev) rows.push({ math: "= " + fmt(r), note: prev + " = " + fmt(r) + "." });
+  return rows;
+}
+
+/* ---------- Function families ---------- */
+var TYPES = {
+  linear: {
+    slope: function(p){ return p.d === 1 ? coef(-p.n) : MINUS + frac(p.n, p.d); },
+    show: function(p){ return this.slope(p) + X + op(p.b) + abs(p.b); },
+    answer: function(p){ return -p.n * p.v / p.d + p.b; },
+    gen: function(opt){
+      var b = 0; while (b === 0) b = ri(-10, 10);
+      if ((opt && opt.intOnly) || Math.random() < 0.5) return { type: "linear", n: ri(1, (opt && opt.maxN) || 10), d: 1, b: b, v: -ri(1, 10) };
+      var d = pick([2, 3, 4, 5]), n; do { n = ri(1, 9); } while (gcd(n, d) !== 1);
+      return { type: "linear", n: n, d: d, b: b, v: -d * ri(1, 8) };   // input is a negative multiple of the denominator
+    },
+    steps: function(p, nm){
+      nm = nm || F;
+      var sl = this.slope(p), pr = -p.n * p.v / p.d, r = pr + p.b, bb = op(p.b) + abs(p.b);
+      var s = [{ math: nm + P(p.v) + " = " + sl + P(p.v) + bb,
+        note: "Substitute " + fmt(p.v) + " for " + X + "." + keepParen(p.v) }];
+      if (p.d === 1){
+        s.push({ math: "= " + fmt(pr) + bb, note: "Multiply before adding or subtracting: " + sl + P(p.v) + " = " + fmt(pr) + "." + ruleSentence(-1, p.v) });
+      } else {
+        var q = p.v / p.d;
+        s.push({ math: "= " + coef(-p.n) + P(q) + bb, note: "The input " + fmt(p.v) + " is a multiple of the denominator " + p.d + ", so divide first: " + fmt(p.v) + " ÷ " + p.d + " = " + fmt(q) + ". Now multiply by the numerator, " + fmt(-p.n) + "." });
+        s.push({ math: "= " + fmt(pr) + bb, note: "Multiply: " + coef(-p.n) + P(q) + " = " + fmt(pr) + "." + ruleSentence(-1, q) });
+      }
+      s.push({ math: "= " + fmt(r), note: (p.b > 0 ? "Add" : "Subtract") + ": " + fmt(pr) + bb + " = " + fmt(r) + "." });
+      return s;
+    },
+    mistakes: function(p){
+      var sl = this.slope(p), pr = -p.n * p.v / p.d, b = p.b;
+      var list = [
+        { value: -pr + b, msg: "Check the sign of " + sl + P(p.v) + "." + ruleSentence(-1, p.v) },
+        { value: pr - b, msg: "Check the last step. The function " + (b > 0 ? "adds " : "subtracts ") + abs(b) + " after multiplying." },
+        { value: -pr - b, msg: "Two sign slips: check the sign of " + sl + P(p.v) + ", and check whether the function adds or subtracts " + abs(b) + "." }
+      ];
+      if (p.d === 1) list.push({ value: -p.n + p.v + b, msg: sl + P(p.v) + " means multiply. A number written right next to parentheses is multiplied, not added." });
+      else {
+        list.push({ value: -p.n * p.v + b, msg: "Don’t forget the denominator. " + sl + " means multiply by " + fmt(-p.n) + " and divide by " + p.d + "." });
+        list.push({ value: -p.d * p.v / p.n + b, msg: "It looks like the fraction got flipped. Divide the input by the denominator, " + p.d + ", then multiply by the numerator, " + fmt(-p.n) + "." });
+        list.push({ value: -p.n * p.v * p.d + b, msg: "Divide by the denominator, " + p.d + ". Don’t multiply by it." });
+      }
+      return list;
+    },
+    subForms: function(p){
+      var sl = p.d === 1 ? coefAlts(-p.n)
+        : ["-" + p.n + "/" + p.d, "-(" + p.n + "/" + p.d + ")", "(-" + p.n + "/" + p.d + ")", "(-" + p.n + ")/" + p.d];
+      return cart([sl, ["(" + p.v + ")"], [sgn(p.b)]]);
+    },
+    nudge: "Not quite. Multiply the slope by the input first, then add or subtract the constant."
+  },
+
+  quad: {
+    show: function(p){ return polyShow(p.a, p.b, p.c); },
+    answer: function(p){ return p.a * p.v * p.v + p.b * p.v + p.c; },
+    gen: function(opt){
+      var a; if (opt && opt.smallLead){ do { a = ri(-3, 3); } while (a === 0); } else a = ri(1, 10);
+      return { type: "quad", a: a, b: ri(1, 10), c: ri(1, 10), v: -ri(1, 10) };
+    },
+    steps: function(p, nm){ return polySteps(p.a, p.b, p.c, p.v, nm || F); },
+    mistakes: function(p){
+      var a = p.a, b = p.b, c = p.c, v = p.v, A = a * v * v, B = b * v;
+      var list = [
+        { value: -A + B + c, msg: a > 0
+            ? "It looks like the " + sq(X) + " term came out negative. Squaring means " + P(v) + P(v) + (v < 0 ? ". What sign does a negative times a negative have?" : ", which is positive.")
+            : "Check the " + sq(X) + " term. Square " + fmt(v) + " first, then multiply by " + fmt(a) + ". The negative coefficient makes that term negative." },
+        { value: -A - B + c, msg: "Two sign slips: check the " + sq(X) + " term and the middle term. Watch the sign each time you multiply." },
+        { value: a * 2 * v + B + c, msg: sq(P(v)) + " means " + P(v) + P(v) + ", not 2" + P(v) + ". The exponent tells you how many times to multiply the number by itself." }
+      ];
+      if (b) list.push({ value: A - B + c, msg: b > 0
+            ? "Check the sign of the middle term, " + (b === 1 ? "" : b) + P(v) + "." + ruleSentence(b, v)
+            : "Check the sign of the middle term, " + MINUS + (abs(b) === 1 ? "" : abs(b)) + P(v) + "." + ruleSentence(b, v) });
+      if (a !== 1) list.push({ value: (a * v) * (a * v) + B + c,
+        msg: "It looks like you multiplied " + fmt(a) + " by " + fmt(v) + " before squaring. Exponents come before multiplication: square " + fmt(v) + " first, then multiply by " + fmt(a) + "." });
+      return list;
+    },
+    subForms: function(p){
+      var pv = "(" + p.v + ")", bs = p.b < 0 ? "-" : "+";
+      var bAlts = abs(p.b) === 1 ? [bs, bs + "1"] : [bs + abs(p.b)];
+      return cart([coefAlts(p.a), [pv + "^2"], bAlts, [pv], [sgn(p.c)]]);
+    },
+    insert: [{ label: "x²", sup: "2" }],
+    tip: "Type ^ (shift 6) to open an exponent box. Press → or type + or − to come back down.",
+    nudge: "Not quite. Square the input first, then multiply, then add and subtract from left to right."
+  },
+
+  abs: {
+    inside: function(p, val){ return val + (p.h > 0 ? " " + MINUS + " " + p.h : " + " + abs(p.h)); },
+    show: function(p){ return coef(p.a) + "|" + this.inside(p, X) + "|" + op(p.k) + abs(p.k); },
+    answer: function(p){ return p.a * abs(p.v - p.h) + p.k; },
+    gen: function(){
+      // Inputs keep the inside of the bars negative, so the absolute value always changes something.
+      for (;;){
+        var h = pickHK(), vs = [];
+        for (var v = -10; v <= -1; v++) if (v < h) vs.push(v);
+        if (vs.length){ var a; do { a = ri(-10, 10); } while (abs(a) < 2); return { type: "abs", a: a, h: h, k: pickHK(), v: pick(vs) }; }
+      }
+    },
+    steps: function(p, nm){
+      nm = nm || F;
+      var I = p.v - p.h, R = abs(I), M = p.a * R, r = M + p.k, kk = op(p.k) + abs(p.k);
+      var s = [
+        { math: nm + P(p.v) + " = " + coef(p.a) + "|" + this.inside(p, fmt(p.v)) + "|" + kk, note: "Substitute " + fmt(p.v) + " for " + X + "." },
+        { math: "= " + coef(p.a) + "|" + fmt(I) + "|" + kk,
+          note: "Absolute value bars are grouping symbols, like parentheses, so work inside them first: " + this.inside(p, fmt(p.v)) + " = " + fmt(I) + "." },
+        { math: "= " + (p.a === 1 ? R : fmt(p.a) + "(" + R + ")") + kk, note: "Absolute value is the distance from 0, so |" + fmt(I) + "| = " + R + "." +
+            (p.a < 0 ? " The " + fmt(p.a) + " is outside the bars, so it keeps its sign." : "") }
+      ];
+      if (p.a !== 1) s.push({ math: "= " + fmt(M) + kk, note: "Multiply before " + addWord(p.k) + ": " + fmt(p.a) + "(" + R + ") = " + fmt(M) + "." + (p.a < 0 ? " A negative times a positive is negative." : "") });
+      s.push({ math: "= " + fmt(r), note: fmt(M) + kk + " = " + fmt(r) + "." });
+      return s;
+    },
+    mistakes: function(p){
+      var I = p.v - p.h, R = abs(I), M = p.a * R, ins = this.inside(p, fmt(p.v));
+      return [
+        { value: -M + p.k, msg: p.a < 0
+            ? "The " + fmt(p.a) + " is outside the bars, so the absolute value doesn’t make it positive. Multiply " + fmt(p.a) + " by the absolute value, and keep the sign."
+            : "Check the sign when you multiply " + p.a + " by the absolute value." },
+        { value: p.a * I + p.k, msg: "Absolute value is the distance from 0, so it is never negative. What is |" + fmt(I) + "|?" },
+        { value: p.a * abs(p.v + p.h) + p.k, msg: "Check the inside of the bars: " + ins + ". Watch the sign when you combine those two numbers." },
+        { value: p.v < 0 ? p.a * abs(-p.v - p.h) + p.k : NaN, msg: "Finish " + ins + " inside the bars before taking the absolute value. Don’t make " + fmt(p.v) + " positive first." },
+        { value: p.a * (R + p.k), msg: "Multiply " + fmt(p.a) + " by the absolute value before " + addWord(p.k) + " " + abs(p.k) + ". Multiplication comes first." },
+        { value: p.a * R - p.k, msg: "Check the last step. The function " + (p.k > 0 ? "adds " : "subtracts ") + abs(p.k) + "." }
+      ];
+    },
+    subForms: function(p){
+      return cart([coefAlts(p.a), ["abs("], [String(p.v), "(" + p.v + ")"], [sgn(-p.h) + ")"], [sgn(p.k)]]);
+    },
+    insert: [{ label: "| |", text: "||", back: 1 }],
+    tip: "Tap | | or use the | key for absolute value bars.",
+    nudge: "Not quite. Work inside the absolute value bars, take the absolute value, then multiply, then add or subtract."
+  },
+
+  sqrt: {
+    inside: function(p, val){ return val + op(p.h) + abs(p.h); },
+    show: function(p){ return coef(p.a) + rad(this.inside(p, X)) + op(p.k) + abs(p.k); },
+    answer: function(p){ return p.a * Math.sqrt(p.v + p.h) + p.k; },
+    gen: function(){
+      // Pick the perfect square under the root first (4 to 144), then the input. 0 and 1 are left out:
+      // with 1, forgetting the square root still gives the right answer.
+      var s = ri(2, 12), h = pickHK(), a;
+      do { a = ri(-10, 10); } while (abs(a) < 2);
+      return { type: "sqrt", a: a, h: h, k: pickHK(), v: s * s - h };
+    },
+    steps: function(p, nm){
+      nm = nm || F;
+      var I = p.v + p.h, R = Math.sqrt(I), M = p.a * R, r = M + p.k, kk = op(p.k) + abs(p.k);
+      var s = [
+        { math: nm + P(p.v) + " = " + coef(p.a) + rad(this.inside(p, fmt(p.v))) + kk, note: "Substitute " + fmt(p.v) + " for " + X + "." },
+        { math: "= " + coef(p.a) + rad(String(I)) + kk,
+          note: "The square root symbol is a grouping symbol, so work under it first: " + this.inside(p, fmt(p.v)) + " = " + I + "." },
+        { math: "= " + (p.a === 1 ? R : fmt(p.a) + "(" + R + ")") + kk,
+          note: "Take the square root: " + rad(String(I)) + " = " + R + " because " + sq(R) + " = " + I + "." }
+      ];
+      if (p.a !== 1) s.push({ math: "= " + fmt(M) + kk, note: "Multiply before " + addWord(p.k) + ": " + fmt(p.a) + "(" + R + ") = " + fmt(M) + "." + (p.a < 0 ? " A negative times a positive is negative." : "") });
+      s.push({ math: "= " + fmt(r), note: fmt(M) + kk + " = " + fmt(r) + "." });
+      return s;
+    },
+    mistakes: function(p){
+      var I = p.v + p.h, R = Math.sqrt(I), M = p.a * R;
+      return [
+        { value: p.a * I + p.k, msg: "Don’t forget the square root. After you work under the radical, take the square root of " + I + " before multiplying." },
+        { value: p.a * (R + p.k), msg: "Multiply " + fmt(p.a) + " by the square root before " + addWord(p.k) + " " + abs(p.k) + ". Multiplication comes first." },
+        { value: -M + p.k, msg: "Check the sign when you multiply " + fmt(p.a) + " by the square root." },
+        { value: M - p.k, msg: "Check the last step. The function " + (p.k > 0 ? "adds " : "subtracts ") + abs(p.k) + "." },
+        { value: p.a * (I / 2) + p.k, msg: "The square root of " + I + " is the number that multiplies by itself to make " + I + ". It isn’t half of " + I + "." }
+      ];
+    },
+    subForms: function(p){
+      return cart([coefAlts(p.a), ["sqrt("], [String(p.v), "(" + p.v + ")"], [sgn(p.h) + ")"], [sgn(p.k)]]);
+    },
+    insert: [{ label: "√( )", text: "√()", back: 1 }],
+    tip: "Tap √( ) or type sqrt( ), and put everything under the root inside the parentheses.",
+    nudge: "Not quite. Work under the square root symbol, take the square root, then multiply, then add or subtract."
+  }
+};
+TYPES.shift = {
+  show: function(p){ return X + op(p.p) + abs(p.p); },
+  answer: function(p){ return p.v + p.p; },
+  steps: function(p, nm){
+    return [{ math: (nm || G) + P(p.v) + " = " + fmt(p.v) + op(p.p) + abs(p.p), note: "Substitute " + fmt(p.v) + " for " + X + "." },
+            { math: "= " + fmt(p.v + p.p), note: fmt(p.v) + op(p.p) + abs(p.p) + " = " + fmt(p.v + p.p) + "." }];
+  },
+  mistakes: function(p){ return [{ value: p.v - p.p, msg: "Check the sign: the function " + (p.p > 0 ? "adds " : "subtracts ") + abs(p.p) + "." }]; },
+  nudge: "Not quite. Substitute the input for " + X + ", then add or subtract."
+};
+var FAMILIES = ["linear", "quad", "abs", "sqrt"];
+function kindOf(p){ return p.type === "linear" && p.d > 1 ? "linfrac" : p.type; }
+
+/* ---------- Combining two outputs: + − · ---------- */
+function opSym(o){ return o === "+" ? " + " : o === "-" ? " " + MINUS + " " : o === "/" ? " ÷ " : " · "; }
+function combineRows(fv, gv, o, lab1, lab2, outLab){
+  var head = (outLab || lab1 + opSym(o) + lab2) + " = ";
+  if (o === "/"){
+    var q = fv / gv;
+    return [
+      { math: head + fmt(fv) + " ÷ " + pm(gv), note: "Replace each function with its value." },
+      { math: "= " + fmt(q), note: fmt(fv) + " ÷ " + pm(gv) + " = " + fmt(q) + "." + ruleSentence(fv, gv).replace("times", "divided by") }
+    ];
+  }
+  if (o === "*"){
+    var pr = fv * gv, negs = (fv < 0) + (gv < 0);
+    return [
+      { math: head + pm(fv) + " · " + pm(gv), note: "Replace each function with its value." + (negs ? " Put negative values in parentheses." : "") },
+      { math: "= " + fmt(pr), note: pm(fv) + " · " + pm(gv) + " = " + fmt(pr) + "." +
+          (negs === 2 ? " A negative times a negative is positive." : negs === 1 ? " A positive times a negative is negative." : "") }
+    ];
+  }
+  var res = o === "+" ? fv + gv : fv - gv;
+  var rows = [{ math: head + fmt(fv) + opSym(o) + pm(gv), note: "Replace each function with its value." + (gv < 0 ? " Put " + fmt(gv) + " in parentheses because it’s negative." : "") }];
+  var eff = (o === "+") === (gv >= 0) ? " + " : " " + MINUS + " ";
+  if (gv < 0) rows.push({ math: "= " + fmt(fv) + eff + abs(gv),
+    note: o === "-" ? "Subtracting a negative is the same as adding its opposite." : "Adding a negative is the same as subtracting its opposite." });
+  rows.push({ math: "= " + fmt(res), note: fmt(fv) + eff + abs(gv) + " = " + fmt(res) + "." });
+  return rows;
+}
+
+/* ---------- Combining two polynomial functions first (sum or product) ---------- */
+function coeffs(p){ return p.type === "linear" ? [p.b, -p.n / p.d, 0] : [p.c, p.b, p.a]; }   // [constant, x, x²]
+function combineCoeffs(fp, gp, o){
+  var f = coeffs(fp), g = coeffs(gp);
+  if (o === "+") return [f[0] + g[0], f[1] + g[1], f[2] + g[2]];
+  return [f[0] * g[0], f[1] * g[0] + f[0] * g[1], f[1] * g[1]];   // product of two linear functions
+}
+function combinedQuad(fp, gp, o, v){ var r = combineCoeffs(fp, gp, o); return { type: "quad", a: r[2], b: r[1], c: r[0], v: v }; }
+function absT(c, d){ return d === 2 ? (abs(c) === 1 ? "" : abs(c)) + sq(X) : d === 1 ? absX(c) : String(abs(c)); }
+function leadT(c, d){ return c === 0 ? "0" + (d === 2 ? sq(X) : d === 1 ? X : "") : (c < 0 ? MINUS : "") + absT(c, d); }
+function seqT(list){
+  var out = "", first = true;
+  list.forEach(function(t){ if (!t[0]) return; out += first ? leadT(t[0], t[1]) : op(t[0]) + absT(t[0], t[1]); first = false; });
+  return out;
+}
+function parenT(c, d){ return "(" + leadT(c, d) + ")"; }
+function FGsym(o){ return "(" + F + (o === "+" ? " + " : " · ") + G + ")"; }
+var DEG_NAME = ["constants", X + " terms", sq(X) + " terms"];
+function fnCombineRows(fp, gp, o){
+  var f = coeffs(fp), g = coeffs(gp), r = combineCoeffs(fp, gp, o), fx = F + "(" + X + ")", gx = G + "(" + X + ")";
+  var Tf = TYPES[fp.type], Tg = TYPES[gp.type];
+  var rows = [{ math: FGsym(o) + "(" + X + ") = " + fx + (o === "+" ? " + " : " · ") + gx,
+    note: o === "+" ? "Adding two functions means adding their outputs, so you can add their expressions."
+                    : "Multiplying two functions means multiplying their outputs, so you can multiply their expressions." }];
+  if (o === "+"){
+    rows.push({ math: "= (" + Tf.show(fp) + ") + (" + Tg.show(gp) + ")", note: "Replace " + fx + " and " + gx + " with their expressions. Parentheses keep each function together." });
+    rows.push({ math: "= " + seqT([[f[2], 2], [g[2], 2], [f[1], 1], [g[1], 1], [f[0], 0], [g[0], 0]]),
+      note: "Group like terms: " + (f[2] || g[2] ? "the " + sq(X) + " terms, then " : "") + "the " + X + " terms, then the constants." });
+    var parts = [];
+    [2, 1, 0].forEach(function(d){
+      if (f[d] && g[d]) parts.push(seqT([[f[d], d], [g[d], d]]) + " = " + leadT(r[d], d) + (r[d] === 0 ? " (they cancel)" : ""));
+    });
+    rows.push({ math: "= " + polyShow(r[2], r[1], r[0]), note: "Combine like terms: " + parts.join(", ") + "." });
+  } else {
+    rows.push({ math: "= (" + Tf.show(fp) + ")(" + Tg.show(gp) + ")", note: "Replace " + fx + " and " + gx + " with their expressions, each in its own parentheses." });
+    var Fx = f[1] * g[1], O = f[1] * g[0], In = f[0] * g[1], L = f[0] * g[0];
+    rows.push({ math: "= " + seqT([[Fx, 2], [O, 1], [In, 1], [L, 0]]),
+      note: "Multiply each term of the first factor by each term of the second (FOIL). F: " + parenT(f[1], 1) + parenT(g[1], 1) + " = " + leadT(Fx, 2) +
+        ", O: " + parenT(f[1], 1) + parenT(g[0], 0) + " = " + leadT(O, 1) + ", I: " + parenT(f[0], 0) + parenT(g[1], 1) + " = " + leadT(In, 1) +
+        ", L: " + parenT(f[0], 0) + parenT(g[0], 0) + " = " + leadT(L, 0) + "." });
+    rows.push({ math: "= " + polyShow(r[2], r[1], r[0]), note: "Combine like terms: " + seqT([[O, 1], [In, 1]]) + " = " + leadT(r[1], 1) + (r[1] === 0 ? " (they cancel)" : "") + "." });
+  }
+  return rows;
+}
+
+/* ---------- Typed math: normalize, preview, parse ---------- */
+function norm(raw){
+  var s = String(raw).toLowerCase().replace(/[\u2212\u2013\u2014]/g, "-").replace(/\s+/g, "");
+  s = s.replace(/²/g, "^2").replace(/[·×]/g, "*").replace(/√/g, "sqrt");
+  s = s.replace(/^\(f[+*/]g\)\([^)]*\)=/, "").replace(/^[fg]\([^)]*\)=/, "");
+  s = s.replace(/\|([^|]*)\|/g, "abs($1)");
+  s = s.replace(/\*(?=\(|sqrt|abs|x)/g, "").replace(/\)\*/g, ")").replace(/\*(-?\d+)/g, "($1)");
+  return s;
+}
+function closeParen(s, open){
+  var depth = 0;
+  for (var j = open; j < s.length; j++){ if (s[j] === "(") depth++; else if (s[j] === ")" && --depth === 0) return j; }
+  return s.length;
+}
+function pretty(s){
+  var out = "", i = 0;
+  while (i < s.length){
+    if (s.startsWith("sqrt(", i)){ var j = closeParen(s, i + 4); out += rad(pretty(s.slice(i + 5, j)) || "&nbsp;"); i = j + 1; continue; }
+    if (s.startsWith("abs(", i)){ var k = closeParen(s, i + 3); out += "|" + pretty(s.slice(i + 4, k)) + "|"; i = k + 1; continue; }
+    if (s.startsWith("sqrt", i)){ out += "√"; i += 4; continue; }
+    if (s.startsWith("^2", i)){ out += "<sup>2</sup>"; i += 2; continue; }
+    var ch = s[i];
+    if (ch === "-") out += (i > 0 && /[0-9)|x]/.test(s[i - 1])) ? " " + MINUS + " " : MINUS;
+    else if (ch === "+") out += " + ";
+    else if (ch === "x") out += X;
+    else if (ch === "f") out += F;
+    else if (ch === "g") out += G;
+    else out += esc(ch);
+    i++;
+  }
+  return out;
+}
+function parsePoly(raw){
+  var s = norm(raw).replace(/^y=/, "").replace(/\*/g, "");
+  if (!s || /[^0-9x^+\-]/.test(s)) return null;
+  if (s[0] !== "+" && s[0] !== "-") s = "+" + s;
+  var terms = s.match(/[+-][^+-]+/g);
+  if (!terms || terms.join("") !== s) return null;
+  var c = [0, 0, 0], cnt = [0, 0, 0];
+  for (var i = 0; i < terms.length; i++){
+    var t = /^([+-])(\d*)(x(\^2)?)?$/.exec(terms[i]);
+    if (!t || (t[2] === "" && !t[3])) return null;
+    var deg = t[3] ? (t[4] ? 2 : 1) : 0, val = (t[2] === "" ? 1 : parseInt(t[2], 10)) * (t[1] === "-" ? -1 : 1);
+    c[deg] += val; cnt[deg]++;
+  }
+  return { c: c, dup: cnt.some(function(n){ return n > 1; }) };
+}
+function parseAnswer(raw){
+  var s = String(raw).replace(/[\u2212\u2013\u2014]/g, "-").replace(/\s+/g, "");
+  s = s.replace(/^\(?[a-z]([+*·/][a-z])?\)?\([^)]*\)=/i, "").replace(/^(y|=)+/i, "").replace(/^=/, "");
+  if (!/^[+-]?\d+$/.test(s)) return null;
+  return parseInt(s, 10);
+}
+
+/* ---------- Step table ---------- */
+function stepsTable(rows, hideLast){
+  var h = '<div class="steps"><div class="steps-head"><div>Work</div><div>What happened in this step</div></div>';
+  rows.forEach(function(s, i){
+    if (s.head){ h += '<div class="step head">' + s.head + "</div>"; return; }
+    var last = i === rows.length - 1;
+    var math = (hideLast && last) ? "= ?" : s.math;
+    var note = (hideLast && last) ? "Finish this last step yourself." : s.note;
+    h += '<div class="step' + (last && !hideLast ? " final" : "") + '"><div class="work">' + m(math) + '</div><div class="note">' + note + '</div></div>';
+  });
+  return h + "</div>";
+}
+
+/* ---------- Answer parts: each problem is a sequence of parts that lock when correct ---------- */
+function numFb(val, ans, mistakes, nudge, steps, tries, hintIdx, hintText){
+  var mis = mistakes.filter(function(x){ return x.value === val && x.value !== ans; })[0];
+  var lead = '<p class="lead">' + (mis ? mis.msg : nudge) + "</p>";
+  if (tries === 1) return lead;
+  if (tries === 2) return lead + "<p>" + (hintText || "Start with this step and keep going:") + "</p>" + stepsTable([steps[hintIdx]], false);
+  return (mis ? lead : '<p class="lead">Not quite yet.</p>') + "<p>Here is the work with your problem’s numbers. Finish the last step:</p>" + stepsTable(steps, true);
+}
+function numCheck(raw, ps, ans, fbFn){
+  var val = parseAnswer(raw);
+  if (val === null) return { ok: false, fb: { kind: "warn", html: "<p>Type one whole number, like 14 or −7. Leave out any words or extra symbols.</p>" } };
+  if (val === ans) return { ok: true };
+  ps.tries++;
+  return { ok: false, fb: { kind: "bad", html: fbFn(val, ps.tries) } };
+}
+function fnPart(id, title, T, p, nm, hintIdx, hintText, lockedLine){
+  var ans = T.answer(p), lab = nm + P(p.v) + " =";
+  return { id: id, title: title, kind: "num", label: lab, locked: m((lockedLine || lab) + " " + fmt(ans)),
+    check: function(raw, ps){ return numCheck(raw, ps, ans, function(val, tries){
+      return numFb(val, ans, T.mistakes(p), T.nudge, T.steps(p, nm), tries, hintIdx, hintText); }); } };
+}
+function combinePart(id, title, fv, gv, o, lab1, lab2, outLab){
+  var ans = o === "+" ? fv + gv : o === "-" ? fv - gv : o === "/" ? fv / gv : fv * gv;
+  var lab = (outLab || lab1 + opSym(o) + lab2) + " =", mistakes, nudge;
+  if (o === "/"){
+    mistakes = [
+      { value: gv / fv, msg: "Divide in the order written: the value of " + lab1 + " goes on top." },
+      { value: fv * gv, msg: "This is a quotient, so divide the two values." },
+      { value: -ans, msg: "Check the sign of the quotient." }
+    ];
+    nudge = "Not quite. Divide the value of " + lab1 + " by the value of " + lab2 + ".";
+  } else if (o === "*"){
+    mistakes = [
+      { value: -ans, msg: "Check the sign of the product. " + ((fv < 0) === (gv < 0) ? "Two numbers with the same sign multiply to a positive." : "A positive times a negative is negative.") },
+      { value: fv + gv, msg: "This is a product, so multiply the two values." }
+    ];
+    nudge = "Not quite. Replace each function with the value you found, then multiply.";
+  } else {
+    mistakes = [{ value: o === "+" ? fv - gv : fv + gv, msg: o === "-"
+        ? (gv < 0 ? "Subtracting a negative: " + fmt(fv) + " " + MINUS + " " + P(gv) + " means adding the opposite of " + fmt(gv) + "." : "This one is a difference, so subtract the value of " + lab2 + ".")
+        : (gv < 0 ? "Adding a negative: " + fmt(fv) + " + " + P(gv) + " is the same as subtracting " + abs(gv) + "." : "This one is a sum, so add the two values.") }];
+    if (o === "-") mistakes.push({ value: gv - fv, msg: "Subtract in the order written: start with the value of " + lab1 + ", then subtract the value of " + lab2 + "." });
+    nudge = "Not quite. Replace each function with the value you found, then " + (o === "+" ? "add." : "subtract.");
+  }
+  return { id: id, title: title, kind: "num", label: lab, locked: m(lab + " " + fmt(ans)),
+    check: function(raw, ps){ return numCheck(raw, ps, ans, function(val, tries){
+      return numFb(val, ans, mistakes, nudge, combineRows(fv, gv, o, lab1, lab2, outLab), tries, 0, "Start here and keep going:"); }); } };
+}
+/* ---------- Coefficients in front of functions: c·f(x₁) ± d·g(x₂) ---------- */
+function coefExpr(p){ return coef(p.cf) + F + P(p.f.v) + op(p.cg) + (abs(p.cg) === 1 ? "" : abs(p.cg)) + G + P(p.g.v); }
+function coefRows(p, fv, gv){
+  var A = p.cf * fv, B = p.cg * gv, cgAbs = abs(p.cg) === 1 ? "" : abs(p.cg);
+  return [
+    { math: coefExpr(p) + " = " + coef(p.cf) + "(" + fmt(fv) + ")" + op(p.cg) + cgAbs + "(" + fmt(gv) + ")",
+      note: "Replace each function with its value. A number in front of a function multiplies its value, so " + m(coef(p.cf) + F + P(p.f.v)) + " means " + fmt(p.cf) + " times " + fmt(fv) + "." },
+    { math: "= " + fmt(A) + op(B) + abs(B),
+      note: "Multiply, keeping the sign in front of each coefficient: " + fmt(p.cf) + "(" + fmt(fv) + ") = " + fmt(A) + " and " + fmt(p.cg) + "(" + fmt(gv) + ") = " + fmt(B) + "." },
+    { math: "= " + fmt(A + B), note: fmt(A) + op(B) + abs(B) + " = " + fmt(A + B) + "." }
+  ];
+}
+function coefPart(p, fv, gv){
+  var A = p.cf * fv, B = p.cg * gv, ans = A + B, lab = coefExpr(p) + " =", sg = p.cg < 0 ? -1 : 1;
+  var mistakes = [
+    { value: fv + sg * gv, msg: "Don’t forget the coefficients. " + m(coef(p.cf) + F + P(p.f.v)) + " means " + fmt(p.cf) + " times the value of " + m(F + P(p.f.v)) + "." },
+    { value: A + sg * gv, msg: "Multiply both values by their coefficients, including the " + abs(p.cg) + " in front of " + m(G + P(p.g.v)) + "." },
+    { value: fv + B, msg: "Multiply both values by their coefficients, including the " + fmt(p.cf) + " in front of " + m(F + P(p.f.v)) + "." },
+    { value: A - B, msg: "Check the sign of the second product, " + fmt(p.cg) + "(" + fmt(gv) + ")." + ruleSentence(p.cg, gv) },
+    { value: -A + B, msg: "Check the sign of the first product, " + fmt(p.cf) + "(" + fmt(fv) + ")." + ruleSentence(p.cf, fv) },
+    { value: (p.cf + fv) + sg * (abs(p.cg) + gv), msg: "A coefficient right next to a function means multiply, not add." }
+  ];
+  return { id: "c", title: "Multiply by the coefficients and combine", kind: "num", label: lab, locked: m(lab + " " + fmt(ans)),
+    check: function(raw, ps){ return numCheck(raw, ps, ans, function(val, tries){
+      return numFb(val, ans, mistakes, "Not quite. Multiply each function’s value by its coefficient, then combine.", coefRows(p, fv, gv), tries, 0, "Start here and keep going:"); }); } };
+}
+
+/* ---------- Dividing a quadratic by one of its factors: (f/g)(x) ---------- */
+var FGD = "(" + frac(F, G) + ")";
+function factorStr(p){ return "(" + X + op(p) + abs(p) + ")"; }
+function divRows(d){
+  // d = { p: g's constant (g(x) = x + p), q: the other factor's constant, v }
+  var b = d.p + d.q, c = d.p * d.q, fx = F + "(" + X + ")", gx = G + "(" + X + ")", g = factorStr(d.p), o = factorStr(d.q);
+  return [
+    { math: FGD + "(" + X + ") = " + frac(fx, gx), note: "Dividing two functions means dividing their outputs, so you can divide their expressions." },
+    { math: "= " + frac(polyShow(1, b, c), X + op(d.p) + abs(d.p)), note: "Replace " + fx + " and " + gx + " with their expressions." },
+    { math: "= " + frac(o + g, g), note: "Factor " + fx + ": find two numbers that multiply to " + fmt(c) + " and add to " + fmt(b) + ". They are " + fmt(d.q) + " and " + fmt(d.p) + "." },
+    { math: "= " + frac(o + "<s>" + g + "</s>", "<s>" + g + "</s>"), note: "The factor " + g + " is in both the top and the bottom, so it divides out to 1." },
+    { math: "= " + X + op(d.q) + abs(d.q), note: "What’s left is the other factor. Now the function is a simple linear expression." }
+  ];
+}
+function divEvalRows(d){
+  return [{ math: FGD + P(d.v) + " = " + fmt(d.v) + op(d.q) + abs(d.q), note: "Substitute " + fmt(d.v) + " for " + X + " in the simplified function." },
+          { math: "= " + fmt(d.v + d.q), note: fmt(d.v) + op(d.q) + abs(d.q) + " = " + fmt(d.v + d.q) + "." }];
+}
+function factorPart(d){
+  var b = d.p + d.q, c = d.p * d.q, rows = divRows(d), lab = F + "(" + X + ") =";
+  return { id: "factor", title: "Factor " + m(F + "(" + X + ")"), kind: "text", label: lab, tip: "Type the factors like (x + 3)(x − 5).",
+    intro: "Write " + m(F + "(" + X + ")") + " as a product of two factors.",
+    locked: m(lab + " " + factorStr(d.q) + factorStr(d.p)),
+    check: function(raw, ps){
+      var s = norm(raw).replace(/\*/g, "");
+      if (!s) return { ok: false, fb: { kind: "warn", html: "<p>Type the factors like (x + 3)(x − 5).</p>" } };
+      var mt = /^\(x([+-]\d+)\)\(x([+-]\d+)\)$/.exec(s);
+      if (mt){
+        var r1 = parseInt(mt[1], 10), r2 = parseInt(mt[2], 10);
+        if ((r1 === d.p && r2 === d.q) || (r1 === d.q && r2 === d.p)) return { ok: true };
+      }
+      ps.tries++;
+      var msgs = [];
+      if (!mt) msgs.push("Type two factors in parentheses, like (x + 3)(x − 5).");
+      else {
+        if (r1 * r2 !== c) msgs.push("L: your last terms multiply to " + fmt(r1 * r2) + ", but the constant of " + F + "(" + X + ") is " + fmt(c) + ". Find two numbers that multiply to " + fmt(c) + ".");
+        if (r1 + r2 !== b) msgs.push(r1 + r2 === -b && r1 * r2 === c
+          ? "Your numbers multiply correctly, but the signs are flipped. The middle term is " + fmtX(b) + "."
+          : "O + I: your outer and inner products add to " + fmtX(r1 + r2) + ", but the middle term is " + fmtX(b) + ". The two numbers must also add to " + fmt(b) + ".");
+      }
+      var html = msgs.map(function(t){ return '<p class="lead">' + t + "</p>"; }).join("");
+      if (ps.tries >= 2) html += "<p>Hint: " + m(G + "(" + X + ") = " + X + op(d.p) + abs(d.p)) + " is one of the factors of " + m(F + "(" + X + ")") + ".</p>";
+      if (ps.tries >= 3) html += stepsTable([rows[2]], false);
+      return { ok: false, fb: { kind: "bad", html: html } };
+    } };
+}
+function dividePart(d){
+  var rows = divRows(d), lab = FGD + "(" + X + ") =";
+  return { id: "divide", title: "Divide " + m(F + "(" + X + ")") + " by " + m(G + "(" + X + ")"), kind: "text", label: lab, tip: "Type the simplified function, like x + 7.",
+    intro: "Divide out the factor that " + m(F + "(" + X + ")") + " and " + m(G + "(" + X + ")") + " share. Don’t substitute yet.",
+    locked: m(lab + " " + X + op(d.q) + abs(d.q)),
+    check: function(raw, ps){
+      var s = norm(raw).replace(/\*/g, "").replace(/^\(([^()]*)\)$/, "$1"), k = null, mt;
+      if (!s) return { ok: false, fb: { kind: "warn", html: "<p>Type the simplified function, like x + 7.</p>" } };
+      if ((mt = /^x([+-]\d+)$/.exec(s))) k = parseInt(mt[1], 10);
+      else if ((mt = /^([+-]?\d+)\+x$/.exec(s))) k = parseInt(mt[1], 10);
+      if (k === d.q) return { ok: true };
+      ps.tries++;
+      var msg = k === d.p ? "That’s " + m(G + "(" + X + ")") + ", the factor that divides out. Keep the other factor."
+        : k === -d.q ? "Check the sign. Look at the factor of " + m(F + "(" + X + ")") + " that is left over."
+        : /\(/.test(s) ? "Divide out the common factor so only one factor is left."
+        : "Not quite. Factor " + m(F + "(" + X + ")") + ", then divide out the factor it shares with " + m(G + "(" + X + ")") + ".";
+      var html = '<p class="lead">' + msg + "</p>";
+      if (ps.tries >= 2) html += stepsTable([rows[2]], false);
+      if (ps.tries >= 3) html += stepsTable([rows[3]], false);
+      return { ok: false, fb: { kind: "bad", html: html } };
+    } };
+}
+
+/* ---------- FoG: f(g(x)) ---------- */
+var HK = []; for (var hk = -10; hk <= 10; hk++) if (hk !== 0 && hk !== 1) HK.push(hk);
+function pmRange(lo, hi){ var a; do { a = ri(-hi, hi); } while (abs(a) < lo); return a; }
+function fitOuter(t, u){
+  // Build f so that u = g(x) is a sensible input: whole-number answers, perfect squares under roots, and reasonable sizes.
+  if (t === "linear"){
+    if (abs(u) > 50) return null;
+    var b = 0; while (b === 0) b = ri(-10, 10);
+    var ds = [2, 3, 4, 5].filter(function(d){ return u !== 0 && u % d === 0; });
+    if (!ds.length || Math.random() < 0.5) return { type: "linear", n: ri(1, 10), d: 1, b: b, v: u };
+    var d = pick(ds), n; do { n = ri(1, 9); } while (gcd(n, d) !== 1);
+    return { type: "linear", n: n, d: d, b: b, v: u };
+  }
+  if (t === "quad"){ if (u === 0 || abs(u) > 12) return null; return { type: "quad", a: ri(1, 10), b: ri(1, 10), c: ri(1, 10), v: u }; }
+  if (t === "abs"){
+    var ha = HK.filter(function(h){ return h > u; });            // keeps the inside of the bars negative, as in Level 1
+    if (!ha.length) return null;
+    return { type: "abs", a: pmRange(2, 10), h: pick(ha), k: pickHK(), v: u };
+  }
+  var hs = HK.filter(function(h){ var r = u + h, s = Math.round(Math.sqrt(Math.max(r, 0))); return r >= 4 && r <= 144 && s * s === r; });
+  if (!hs.length) return null;
+  return { type: "sqrt", a: pmRange(2, 10), h: pick(hs), k: pickHK(), v: u };
+}
+function fogExample(pf, pg){
+  var Tf = TYPES[pf.type], Tg = TYPES[pg.type], x = pg.v, u = pf.v;
+  return {
+    given: "Given " + fnLine(F, Tf, pf) + " and " + fnLine(G, Tg, pg) + ", find " + m(F + "(" + G + P(x) + ")") + ".",
+    rows: [{ head: "Work from the inside out: evaluate " + m(G + P(x)) + " first, then use that output as the input for " + F + "." },
+           { head: "Step 1: find " + m(G + P(x)) }].concat(Tg.steps(pg, G),
+          [{ head: "Step 2: use " + m(G + P(x) + " = " + fmt(u)) + " as the input for " + F },
+           { math: F + "(" + G + P(x) + ") = " + F + P(u), note: "Since " + m(G + P(x) + " = " + fmt(u)) + ", " + m(F + "(" + G + P(x) + ")") + " is " + m(F + P(u)) + ". The output of " + G + " becomes the input of " + F + "." }],
+          Tf.steps(pf, F)),
+    after: m(F + "(" + G + P(x) + ") = " + fmt(Tf.answer(pf)))
+  };
+}
+
+function subPart(T, p){
+  var lab = F + P(p.v) + " =";
+  return { id: "sub", title: "Substitute", kind: "text", label: lab, insert: T.insert, tip: T.tip,
+    intro: "Rewrite the function with " + m(P(p.v)) + " in place of every " + X + ". Don’t simplify yet.",
+    locked: m(T.steps(p, F)[0].math),
+    check: function(raw, ps){
+      var s = norm(raw), forms = T.subForms(p), v = String(p.v), pv = "(" + v + ")";
+      if (!s) return { ok: false, fb: { kind: "warn", html: "<p>Type the function with " + m(P(p.v)) + " in place of " + X + ".</p>" } };
+      if (forms.indexOf(s) >= 0) return { ok: true };
+      ps.tries++;
+      var msg = null, strip = function(t){ return t.split(pv).join(v); };
+      if (/x/.test(s)) msg = "Replace every " + X + " with " + m(P(p.v)) + ". There shouldn’t be any " + X + " left in your line.";
+      else if (/sqrt(?!\()/.test(s)) msg = "Put everything under the square root inside parentheses. Tap √( ) to get them.";
+      else if (p.v < 0 && forms.some(function(f){ return strip(f) === strip(s); })){
+        msg = (p.type === "quad" && s.indexOf(pv + "^2") < 0 && s.indexOf(v + "^2") >= 0)
+          ? "Put " + fmt(p.v) + " in parentheses before you square it: " + m(sq(P(p.v))) + ". Without them, " + m(sq(fmt(p.v))) + " means the opposite of " + m(sq(abs(p.v))) + "."
+          : "Put " + fmt(p.v) + " in parentheses every time you substitute it, like " + m(P(p.v)) + ". Without them, the signs run together and multiplication looks like subtraction.";
+      }
+      var html;
+      if (ps.tries >= 3) html = '<p class="lead">' + (msg || "Here is the substitution.") + "</p><p>Type this line to continue:</p><p>" + m(T.steps(p, F)[0].math) + "</p>";
+      else if (ps.tries === 2) html = '<p class="lead">' + (msg || "Copy the function exactly, and put " + m(P(p.v)) + " in every box.") + "</p><p>" +
+        m(F + P(p.v) + " = " + T.show(p).split(X).join('(<span class="blank"></span>)')) + "</p>";
+      else html = '<p class="lead">' + (msg || "Not quite. Copy the function exactly, replacing each " + X + " with " + m(P(p.v)) + ". Keep every other number and sign the same.") + "</p>";
+      return { ok: false, fb: { kind: "bad", html: html } };
+    } };
+}
+function polyPart(fp, gp, o){
+  var r = combineCoeffs(fp, gp, o), f = coeffs(fp), g = coeffs(gp), rows = fnCombineRows(fp, gp, o);
+  var fx = F + "(" + X + ")", gx = G + "(" + X + ")", lab = FGsym(o) + "(" + X + ") =";
+  var verb = o === "+" ? "Add" : "Multiply";
+  return { id: "poly", title: verb + " the functions", kind: "text", label: lab, insert: [{ label: "x²", sup: "2" }], tip: "Type ^ (shift 6) to open an exponent box. Press → or type + or − to come back down.",
+    intro: verb + " " + fx + " and " + gx + ", then combine like terms. Don’t substitute yet.",
+    locked: m(lab + " " + polyShow(r[2], r[1], r[0])),
+    check: function(raw, ps){
+      var q = parsePoly(raw);
+      if (!norm(raw)) return { ok: false, fb: { kind: "warn", html: "<p>Type the combined function, like 2" + sq(X) + " " + MINUS + " 11" + X + " + 12.</p>" } };
+      if (q && !q.dup && q.c[2] === r[2] && q.c[1] === r[1] && q.c[0] === r[0]) return { ok: true };
+      ps.tries++;
+      var msgs = [];
+      if (!q) msgs.push("Type a polynomial using " + X + ", like 2" + sq(X) + " " + MINUS + " 11" + X + " + 12. Type ^ (shift 6) for the exponent.");
+      else if (q.dup) msgs.push("Combine like terms so each kind of term (" + sq(X) + ", " + X + ", and the constant) appears only once.");
+      else if (o === "+"){
+        [2, 1, 0].forEach(function(d){
+          if (q.c[d] === r[d]) return;
+          var nmT = d === 2 ? "an " + sq(X) + " term" : d === 1 ? "an " + X + " term" : "a constant";
+          if (!f[d] || !g[d]) msgs.push("Only " + (f[d] ? fx : gx) + " has " + nmT + ", so it stays the same in " + FGsym(o) + "(" + X + ").");
+          else if (q.c[d] === f[d] - g[d] || q.c[d] === g[d] - f[d]) msgs.push("You’re adding the functions, so add the " + DEG_NAME[d] + ": " + leadT(f[d], d) + " and " + leadT(g[d], d) + ".");
+          else msgs.push("Check the " + DEG_NAME[d] + ": combine " + leadT(f[d], d) + " from " + fx + " and " + leadT(g[d], d) + " from " + gx + ".");
+        });
+      } else {
+        var O = f[1] * g[0], In = f[0] * g[1];
+        if (q.c[2] !== r[2]) msgs.push("Check the " + sq(X) + " term. It comes from multiplying the first terms: " + parenT(f[1], 1) + parenT(g[1], 1) + ".");
+        if (q.c[1] !== r[1]) msgs.push(q.c[1] === O || q.c[1] === In
+          ? "The " + X + " term needs both the outer and the inner products: " + parenT(f[1], 1) + parenT(g[0], 0) + " and " + parenT(f[0], 0) + parenT(g[1], 1) + "."
+          : "Check the " + X + " terms. They come from the outer and inner products: " + parenT(f[1], 1) + parenT(g[0], 0) + " and " + parenT(f[0], 0) + parenT(g[1], 1) + ".");
+        if (q.c[0] !== r[0]) msgs.push("Check the constant. It comes from multiplying the last terms: " + parenT(f[0], 0) + parenT(g[0], 0) + ".");
+      }
+      var html = msgs.map(function(t){ return '<p class="lead">' + t + "</p>"; }).join("");
+      if (ps.tries === 2) html += "<p>Start by writing each function in parentheses:</p>" + stepsTable([rows[1]], false);
+      if (ps.tries >= 3) html += "<p>" + (o === "+" ? "Group like terms, then combine them:" : "Multiply each pair of terms (FOIL), then combine like terms:") + "</p>" + stepsTable([rows[1], rows[2]], false);
+      return { ok: false, fb: { kind: "bad", html: html } };
+    } };
+}
+
+/* ---------- Levels ---------- */
+function fnLine(nm, T, p){ return m(nm + "(" + X + ") = " + T.show(p)); }
+function coefExample(p){
+  var Tf = TYPES[p.f.type], Tg = TYPES[p.g.type], fv = Tf.answer(p.f), gv = Tg.answer(p.g);
+  return { given: "Given " + fnLine(F, Tf, p.f) + " and " + fnLine(G, Tg, p.g) + ", find " + m(coefExpr(p)) + ".",
+    rows: [{ head: "Evaluate each function at its own input, then multiply by the coefficients and combine." }, { head: "Find " + m(F + P(p.f.v)) }]
+      .concat(Tf.steps(p.f, F), [{ head: "Find " + m(G + P(p.g.v)) }], Tg.steps(p.g, G), [{ head: "Multiply by the coefficients and combine" }], coefRows(p, fv, gv)) };
+}
+function oneFnExample(p){
+  var T = TYPES[p.type];
+  return { given: "Given " + fnLine(F, T, p) + ", find " + m(F + P(p.v)) + ".", rows: T.steps(p, F) };
+}
+function comboExample(pf, pg, o){
+  var Tf = TYPES[pf.type], Tg = TYPES[pg.type], opS = o === "+" ? " + " : " " + MINUS + " ";
+  var lab1 = F + P(pf.v), lab2 = G + P(pg.v);
+  return {
+    given: "Given " + fnLine(F, Tf, pf) + " and " + fnLine(G, Tg, pg) + ", find " + m(lab1 + opS + lab2) + ".",
+    rows: [{ head: "Evaluate each function at its own input, then " + (o === "+" ? "add" : "subtract") + " the outputs." }, { head: "Find " + m(lab1) }]
+      .concat(Tf.steps(pf, F), [{ head: "Find " + m(lab2) }], Tg.steps(pg, G),
+        [{ head: o === "+" ? "Add the outputs" : "Subtract the outputs" }], combineRows(Tf.answer(pf), Tg.answer(pg), o, lab1, lab2))
+  };
+}
+function comboLevel(cfg){
+  var o = cfg.op, FGs = FGsym(o), word = o === "+" ? "add" : "multiply";
+  function given(e){ return "Given " + fnLine(F, TYPES[e.f.type], e.f) + " and " + fnLine(G, TYPES[e.g.type], e.g) + ", find " + m(FGs + P(e.v)) + "."; }
+  function after(e){ var q = combinedQuad(e.f, e.g, o, e.v); return "Both methods give " + m(FGs + P(e.v) + " = " + fmt(TYPES.quad.answer(q))) + ". Use whichever one you like."; }
+  return {
+    title: cfg.title, need: 2, intro: cfg.intro,
+    examples: [
+      { key: "each", tab: "Evaluate each, then " + word, build: function(){
+          var e = cfg.example, f = Object.assign({}, e.f, { v: e.v }), g = Object.assign({}, e.g, { v: e.v });
+          return { given: given(e),
+            rows: [{ head: "Evaluate each function at " + fmt(e.v) + ", then " + word + " the outputs." }, { head: "Find " + m(F + P(e.v)) }]
+              .concat(TYPES[f.type].steps(f, F), [{ head: "Find " + m(G + P(e.v)) }], TYPES[g.type].steps(g, G),
+                [{ head: cap(word) + " the outputs" }], combineRows(TYPES[f.type].answer(f), TYPES[g.type].answer(g), o, F + P(e.v), G + P(e.v), FGs + P(e.v))),
+            after: after(e) }; } },
+      { key: "combine", tab: cap(word) + " the functions first", build: function(){
+          var e = cfg.example, q = combinedQuad(e.f, e.g, o, e.v);
+          return { given: given(e),
+            rows: [{ head: cap(word) + " the functions first" }].concat(fnCombineRows(e.f, e.g, o), [{ head: "Then evaluate " + m(FGs + P(e.v)) }], polySteps(q.a, q.b, q.c, e.v, FGs)),
+            after: after(e) }; } }
+    ],
+    defaultTab: function(p, st){ return st.method || "each"; },
+    gen: cfg.gen,
+    task: function(p){ return fnLine(F, TYPES[p.f.type], p.f) + "<br>" + fnLine(G, TYPES[p.g.type], p.g) + "<br>Find " + m(FGs + P(p.v)) + "."; },
+    methods: [{ key: "each", label: "Evaluate each function, then " + word }, { key: "combine", label: cap(word) + " the functions first, then evaluate" }],
+    parts: function(p, st){
+      var Tf = TYPES[p.f.type], Tg = TYPES[p.g.type];
+      if (st.method === "each") return [
+        fnPart("f", "Evaluate " + m(F + P(p.v)), Tf, p.f, F, 0),
+        fnPart("g", "Evaluate " + m(G + P(p.v)), Tg, p.g, G, 0),
+        combinePart("c", cap(word), Tf.answer(p.f), Tg.answer(p.g), o, F + P(p.v), G + P(p.v), FGs + P(p.v))
+      ];
+      return [polyPart(p.f, p.g, o), fnPart("e", "Evaluate " + m(FGs + P(p.v)), TYPES.quad, combinedQuad(p.f, p.g, o, p.v), FGs, 0)];
+    }
+  };
+}
+function sameInput(f, g, v){ f.v = v; g.v = v; return { f: f, g: g, v: v }; }
+
+var LEVELS = [
+  {
+    title: "Evaluate a function", need: 2,
+    intro: "Substitute the input for " + X + ", then follow the order of operations to find the output. Study the worked example for each kind of function, then try your own.",
+    examples: [
+      { key: "linear", tab: "Linear", build: function(){ return oneFnExample({ type: "linear", n: 4, d: 1, b: 5, v: -6 }); } },
+      { key: "linfrac", tab: "Linear with a fraction", build: function(){ return oneFnExample({ type: "linear", n: 2, d: 3, b: 4, v: -9 }); } },
+      { key: "quad", tab: "Quadratic", build: function(){ return oneFnExample({ type: "quad", a: 1, b: -5, c: -10, v: -3 }); } },
+      { key: "abs", tab: "Absolute value", build: function(){ return oneFnExample({ type: "abs", a: 3, h: 4, k: 2, v: -2 }); } },
+      { key: "sqrt", tab: "Square root", build: function(){ return oneFnExample({ type: "sqrt", a: -3, h: 5, k: 1, v: 139 }); } }
+    ],
+    defaultTab: function(p){ return kindOf(p); },
+    gen: function(st){
+      var t; do { t = pick(FAMILIES); } while (t === st.lastType);
+      st.lastType = t; return TYPES[t].gen();
+    },
+    task: function(p){ return fnLine(F, TYPES[p.type], p) + "<br>Find " + m(F + P(p.v)) + "."; },
+    parts: function(p){
+      var T = TYPES[p.type];
+      return [subPart(T, p), fnPart("eval", "Evaluate", T, p, F, 1, "Here is the next step after substituting. Keep going from there:")];
+    }
+  },
+  {
+    title: "Add or subtract two functions", need: 2,
+    intro: "Evaluate each function at its own input, then add or subtract the two outputs. To unlock the next level, get one sum and one difference correct.",
+    examples: [
+      { key: "+", tab: "Sum", build: function(){ return comboExample({ type: "linear", n: 3, d: 1, b: 4, v: -2 }, { type: "abs", a: 2, h: 5, k: 3, v: -1 }, "+"); } },
+      { key: "-", tab: "Difference", build: function(){ return comboExample({ type: "quad", a: 1, b: 4, c: 3, v: -5 }, { type: "sqrt", a: 2, h: 7, k: -9, v: -3 }, "-"); } }
+    ],
+    defaultTab: function(p){ return p.op; },
+    gen: function(st){
+      var ops = st.done ? ["+", "-"] : ["+", "-"].filter(function(o){ return !st.opsDone[o]; });
+      if (!ops.length) ops = ["+", "-"];
+      var tf = pick(FAMILIES), tg; do { tg = pick(FAMILIES); } while (tg === tf);
+      return { f: TYPES[tf].gen(), g: TYPES[tg].gen(), op: pick(ops) };
+    },
+    task: function(p){
+      var opS = p.op === "+" ? " + " : " " + MINUS + " ";
+      return fnLine(F, TYPES[p.f.type], p.f) + "<br>" + fnLine(G, TYPES[p.g.type], p.g) + "<br>Find " + m(F + P(p.f.v) + opS + G + P(p.g.v)) + ".";
+    },
+    parts: function(p){
+      var Tf = TYPES[p.f.type], Tg = TYPES[p.g.type];
+      return [
+        fnPart("f", "Evaluate " + m(F + P(p.f.v)), Tf, p.f, F, 0),
+        fnPart("g", "Evaluate " + m(G + P(p.g.v)), Tg, p.g, G, 0),
+        combinePart("c", p.op === "+" ? "Add" : "Subtract", Tf.answer(p.f), Tg.answer(p.g), p.op, F + P(p.f.v), G + P(p.g.v))
+      ];
+    },
+    onSolved: function(st, p){ st.opsDone[p.op] = true; }
+  },
+  {
+    title: "Coefficients in front", need: 2,
+    intro: "Same as the last level, but now each function has a number in front of it. Evaluate each function, multiply each value by its coefficient, then combine. To unlock the next level, get one sum and one difference correct.",
+    examples: [
+      { key: "+", tab: "Sum", build: function(){
+          var p = { f: { type: "linear", n: 2, d: 1, b: 1, v: -3 }, g: { type: "quad", a: 1, b: 3, c: 1, v: -2 }, cf: -3, cg: 5 };
+          return coefExample(p); } },
+      { key: "-", tab: "Difference", build: function(){
+          var p = { f: { type: "sqrt", a: 2, h: 5, k: -3, v: 4 }, g: { type: "abs", a: -3, h: 2, k: 1, v: -1 }, cf: 4, cg: -2 };
+          return coefExample(p); } }
+    ],
+    defaultTab: function(p){ return p.cg < 0 ? "-" : "+"; },
+    gen: function(st){
+      var ops = st.done ? ["+", "-"] : ["+", "-"].filter(function(o){ return !st.opsDone[o]; });
+      if (!ops.length) ops = ["+", "-"];
+      var tf = pick(FAMILIES), tg; do { tg = pick(FAMILIES); } while (tg === tf);
+      var o = pick(ops), cf; do { cf = ri(-5, 5); } while (cf === 0 || cf === 1);
+      return { f: TYPES[tf].gen(), g: TYPES[tg].gen(), cf: cf, cg: o === "+" ? ri(2, 5) : -ri(1, 5), op: o };
+    },
+    task: function(p){ return fnLine(F, TYPES[p.f.type], p.f) + "<br>" + fnLine(G, TYPES[p.g.type], p.g) + "<br>Find " + m(coefExpr(p)) + "."; },
+    parts: function(p){
+      var Tf = TYPES[p.f.type], Tg = TYPES[p.g.type];
+      return [fnPart("f", "Evaluate " + m(F + P(p.f.v)), Tf, p.f, F, 0), fnPart("g", "Evaluate " + m(G + P(p.g.v)), Tg, p.g, G, 0),
+              coefPart(p, Tf.answer(p.f), Tg.answer(p.g))];
+    },
+    onSolved: function(st, p){ st.opsDone[p.op] = true; }
+  },
+  comboLevel({
+    title: "Add a linear and a quadratic function", op: "+",
+    intro: "Find " + m(FGsym("+") + "(" + X + ")") + " at one input. You can evaluate each function and add the outputs, or add the functions first and then evaluate. Both methods give the same answer.",
+    example: { f: { type: "linear", n: 2, d: 1, b: 5 }, g: { type: "quad", a: 1, b: -5, c: 4 }, v: -5 },
+    gen: function(){ return sameInput(TYPES.linear.gen({ intOnly: true }), TYPES.quad.gen({ smallLead: true }), -ri(1, 10)); }
+  }),
+  comboLevel({
+    title: "Add two quadratic functions", op: "+",
+    intro: "Same idea as the last level, but now both functions are quadratics. Evaluate each and add, or add the functions first and then evaluate.",
+    example: { f: { type: "quad", a: 2, b: 3, c: 5 }, g: { type: "quad", a: -1, b: 4, c: 1 }, v: -4 },
+    gen: function(){
+      var f, g;
+      do { f = TYPES.quad.gen({ smallLead: true }); g = TYPES.quad.gen({ smallLead: true }); } while (f.a + g.a === 0);   // keep (f + g)(x) a quadratic
+      return sameInput(f, g, -ri(1, 10));
+    }
+  }),
+  comboLevel({
+    title: "Multiply two linear functions", op: "*",
+    intro: "Find " + m(FGsym("*") + "(" + X + ")") + ", which means " + m(F + "(" + X + ") · " + G + "(" + X + ")") + ". Evaluate each function and multiply the outputs, or multiply the functions into a quadratic first and then evaluate.",
+    example: { f: { type: "linear", n: 2, d: 1, b: 3 }, g: { type: "linear", n: 1, d: 1, b: 4 }, v: -3 },
+    gen: function(){ return sameInput(TYPES.linear.gen({ intOnly: true, maxN: 5 }), TYPES.linear.gen({ intOnly: true, maxN: 5 }), -ri(1, 5)); }
+  }),
+  {
+    title: "Divide two functions", need: 2,
+    intro: "Find " + m(FGD + "(" + X + ")") + " at a large input. You can evaluate each function and divide, but look for a faster way: divide the functions first.",
+    examples: [
+      { key: "combine", tab: "Divide the functions first", build: function(){
+          var d = { p: -2, q: 7, v: 81 };
+          return { given: "Given " + m(F + "(" + X + ") = " + polyShow(1, 5, -14)) + " and " + m(G + "(" + X + ") = " + X + " " + MINUS + " 2") + ", find " + m(FGD + P(81)) + ".",
+            rows: [{ head: "Divide the functions first" }].concat(divRows(d), [{ head: "Then evaluate " + m(FGD + P(81)) }], divEvalRows(d)),
+            after: "Dividing first turns a big calculation into one addition: " + m(FGD + P(81) + " = 88") + "." }; } },
+      { key: "each", tab: "Evaluate each, then divide", build: function(){
+          var fq = { type: "quad", a: 1, b: 5, c: -14, v: 81 }, gq = { type: "shift", p: -2, v: 81 };
+          return { given: "Given " + m(F + "(" + X + ") = " + polyShow(1, 5, -14)) + " and " + m(G + "(" + X + ") = " + X + " " + MINUS + " 2") + ", find " + m(FGD + P(81)) + ".",
+            rows: [{ head: "Evaluate each function at 81, then divide the outputs." }, { head: "Find " + m(F + P(81)) }]
+              .concat(TYPES.quad.steps(fq, F), [{ head: "Find " + m(G + P(81)) }], TYPES.shift.steps(gq, G), [{ head: "Divide the outputs" }],
+                combineRows(6952, 79, "/", F + P(81), G + P(81), FGD + P(81))),
+            after: "Both methods give " + m(FGD + P(81) + " = 88") + ", but dividing first is much faster." }; } }
+    ],
+    defaultTab: function(p, st){ return st.method || "combine"; },
+    gen: function(){
+      var a = ri(1, 10), b; do { b = ri(1, 10); } while (b === a);
+      var fa = Math.random() < 0.5 ? a : -a, fb = Math.random() < 0.5 ? b : -b;
+      return { p: fa, q: fb, v: ri(73, 89) };                    // g(x) = x + p is one factor; x + q is the other
+    },
+    task: function(d){
+      return m(F + "(" + X + ") = " + polyShow(1, d.p + d.q, d.p * d.q)) + "<br>" + m(G + "(" + X + ") = " + X + op(d.p) + abs(d.p)) + "<br>Find " + m(FGD + P(d.v)) + ".";
+    },
+    methods: [{ key: "combine", label: "Divide the functions first, then evaluate" }, { key: "each", label: "Evaluate each function, then divide" }],
+    parts: function(d, st){
+      var fq = { type: "quad", a: 1, b: d.p + d.q, c: d.p * d.q, v: d.v }, gq = { type: "shift", p: d.p, v: d.v };
+      if (st.method === "each") return [
+        fnPart("f", "Evaluate " + m(F + P(d.v)), TYPES.quad, fq, F, 0),
+        fnPart("g", "Evaluate " + m(G + P(d.v)), TYPES.shift, gq, G, 0),
+        combinePart("c", "Divide", TYPES.quad.answer(fq), d.v + d.p, "/", F + P(d.v), G + P(d.v), FGD + P(d.v))
+      ];
+      return [factorPart(d), dividePart(d), fnPart("e", "Evaluate " + m(FGD + P(d.v)), TYPES.shift, { type: "shift", p: d.q, v: d.v }, FGD, 0)];
+    }
+  },
+  {
+    title: "FoG", need: 2,
+    intro: "Find " + m(F + "(" + G + "(" + X + "))") + " by working from the inside out. Evaluate " + G + " at the input, then use that output as the input for " + F + ".",
+    examples: [
+      { key: "a", tab: "Quadratic of a linear", build: function(){
+          return fogExample({ type: "quad", a: 1, b: 2, c: 3, v: 7 }, { type: "linear", n: 2, d: 1, b: 1, v: -3 }); } },
+      { key: "b", tab: "Square root of an absolute value", build: function(){
+          return fogExample({ type: "sqrt", a: 3, h: 7, k: -5, v: 9 }, { type: "abs", a: 2, h: 3, k: 1, v: -1 }); } }
+    ],
+    defaultTab: function(p){ return p.f.type === "sqrt" ? "b" : "a"; },
+    gen: function(){
+      for (;;){
+        var tg = pick(FAMILIES), tf; do { tf = pick(FAMILIES); } while (tf === tg && tf !== "linear");   // same family only for linear of linear
+        var pg = TYPES[tg].gen(), pf = fitOuter(tf, TYPES[tg].answer(pg));
+        if (pf) return { f: pf, g: pg };
+      }
+    },
+    task: function(p){ return fnLine(F, TYPES[p.f.type], p.f) + "<br>" + fnLine(G, TYPES[p.g.type], p.g) + "<br>Find " + m(F + "(" + G + P(p.g.v) + ")") + "."; },
+    parts: function(p){
+      var Tf = TYPES[p.f.type], Tg = TYPES[p.g.type], x = p.g.v, u = p.f.v;
+      return [fnPart("g", "Start inside: evaluate " + m(G + P(x)), Tg, p.g, G, 0),
+              fnPart("f", "Use " + m(fmt(u)) + " as the input for " + F, Tf, p.f, F, 0, "", F + "(" + G + P(x) + ") = " + F + P(u) + " =")];
+    }
+  }
+];
+LEVELS.forEach(function(L, i){ L.n = i + 1; });
+var SHOW_COMING_SOON = false;   // shows a "coming soon" chip after the last level while levels are still being written
+
+/* ---------- Saved progress (localStorage, per browser) ---------- */
+var KEY = "mrj-evaluating-functions-v3", OLD_KEYS = {
+  "mrj-evaluating-functions-v2": { 1: 1, 2: 2, 3: 3, 4: 4, 5: 5, 6: 6, 7: 8 },
+  "mrj-evaluating-functions-v1": { 1: 1, 2: 2, 3: 4, 4: 5, 5: 6 }
+};
+var state;
+function freshLevel(){ return { correct: 0, done: false, prob: null, solved: false, lastType: null, fb: null, exTab: null, exHidden: false, parts: {}, method: null, opsDone: {} }; }
+function fresh(){ var s = { cur: 1, lv: {}, champSeen: false }; LEVELS.forEach(function(L){ s.lv[L.n] = freshLevel(); }); return s; }
+function load(){
+  var s = null;
+  try { s = JSON.parse(localStorage.getItem(KEY)); } catch (e) { s = null; }
+  if (!s) Object.keys(OLD_KEYS).forEach(function(k){
+    if (s) return;
+    var old = null; try { old = JSON.parse(localStorage.getItem(k)); } catch (e) {}
+    if (!old || !old.lv) return;
+    var map = OLD_KEYS[k], lv = {};
+    Object.keys(old.lv).forEach(function(n){ if (map[n]) lv[map[n]] = old.lv[n]; });
+    s = { cur: map[old.cur] || 1, lv: lv, champSeen: false, teacher: !!old.teacher };
+  });
+  // When levels are inserted after launch: bump KEY to -v2 and move old saves to the new level numbers here.
+  if (!s || !s.lv) s = fresh();
+  LEVELS.forEach(function(L){
+    var d = freshLevel(), st = s.lv[L.n] || (s.lv[L.n] = d);
+    if (!st.parts) st.prob = null;                     // prototype-era problem shape
+    Object.keys(d).forEach(function(k){ if (!(k in st)) st[k] = d[k]; });
+  });
+  if (!getLevel(s.cur)) s.cur = 1;
+  while (s.cur > 1 && !(s.lv[s.cur - 1] && s.lv[s.cur - 1].done)) s.cur--;   // never open on a locked level
+  return s;
+}
+function save(){ try { localStorage.setItem(KEY, JSON.stringify(state)); } catch (e) {} }
+function getLevel(n){ for (var i = 0; i < LEVELS.length; i++) if (LEVELS[i].n === n) return LEVELS[i]; return null; }
+function unlocked(n){ return n === 1 || !!state.teacher || (state.lv[n - 1] && state.lv[n - 1].done); }
+function allDone(){ return LEVELS.every(function(L){ return state.lv[L.n].done; }); }
+function ps(st, id){ return st.parts[id] || (st.parts[id] = { done: false, tries: 0, input: "", fb: null }); }
+
+/* ---------- Math field: a typing box where ^ opens a raised exponent box ---------- */
+var ZW = "\u200B";
+function mfFromText(el, text){
+  el.innerHTML = "";
+  var buf = "", i = 0;
+  function flush(){ if (buf){ el.appendChild(document.createTextNode(buf)); buf = ""; } }
+  while (i < text.length){
+    if (text[i] === "^" && i + 1 < text.length){
+      var j, inner;
+      if (text[i + 1] === "("){ j = closeParen(text, i + 1); inner = text.slice(i + 2, j); i = j + 1; }
+      else { j = i + 1; while (j < text.length && /[0-9a-z]/i.test(text[j])) j++; inner = text.slice(i + 1, j); i = j; }
+      flush();
+      var sup = document.createElement("sup"); sup.className = "xbox"; sup.textContent = inner || ZW;
+      el.appendChild(sup); el.appendChild(document.createTextNode(ZW));
+      continue;
+    }
+    buf += text[i++];
+  }
+  flush();
+  mfTidy(el);
+}
+function mfToText(node){
+  var out = "";
+  node.childNodes.forEach(function(c){
+    if (c.nodeType === 3) out += c.nodeValue.split(ZW).join("");
+    else if (c.nodeName === "SUP"){ var t = mfToText(c); if (t) out += /^[0-9a-z]+$/i.test(t) ? "^" + t : "^(" + t + ")"; }
+    else if (c.nodeName !== "BR") out += mfToText(c);
+  });
+  return out;
+}
+function mfTidy(el){
+  el.querySelectorAll("sup").forEach(function(s){ s.classList.toggle("empty", mfToText(s) === ""); });
+}
+function mfCaretSup(el){
+  var sel = getSelection(); if (!sel.rangeCount) return null;
+  var n = sel.anchorNode;
+  while (n && n !== el){ if (n.nodeName === "SUP") return n; n = n.parentNode; }
+  return null;
+}
+function mfPlace(node, offset){ var r = document.createRange(), sel = getSelection(); r.setStart(node, offset); r.collapse(true); sel.removeAllRanges(); sel.addRange(r); }
+function mfOpenSup(el, content){
+  var sel = getSelection(); if (!sel.rangeCount || mfCaretSup(el)) return;
+  var r = sel.getRangeAt(0); r.deleteContents();
+  var sup = document.createElement("sup"); sup.className = "xbox";
+  var t = document.createTextNode(content || ZW); sup.appendChild(t);
+  var after = document.createTextNode(ZW), frag = document.createDocumentFragment();
+  frag.appendChild(sup); frag.appendChild(after); r.insertNode(frag);
+  if (content) mfPlace(after, 1); else mfPlace(t, 1);
+}
+function mfExitSup(sup){
+  var next = sup.nextSibling;
+  if (!(next && next.nodeType === 3 && next.nodeValue.charAt(0) === ZW)){ next = document.createTextNode(ZW); sup.parentNode.insertBefore(next, sup.nextSibling); }
+  mfPlace(next, 1);
+}
+function mfAtSupEnd(sup){
+  var sel = getSelection(); if (!sel.rangeCount) return false;
+  var r = document.createRange(); r.selectNodeContents(sup); r.setStart(sel.anchorNode, sel.anchorOffset);
+  return r.toString().split(ZW).join("") === "";
+}
+function mfInsertText(text){ if (!document.execCommand("insertText", false, text)){ var sel = getSelection(), r = sel.getRangeAt(0), t = document.createTextNode(text); r.deleteContents(); r.insertNode(t); mfPlace(t, t.length); } }
+function mfAttach(el, onChange, onEnter){
+  var changed = function(){ mfTidy(el); onChange(); };
+  el.addEventListener("beforeinput", function(e){
+    if (e.inputType === "insertParagraph" || e.inputType === "insertLineBreak"){ e.preventDefault(); return; }
+    if (e.inputType !== "insertText" || !e.data) return;
+    if (e.data === "^"){ e.preventDefault(); mfOpenSup(el); changed(); return; }
+    var sup = mfCaretSup(el);
+    if (sup && /^[+\-−=()|*· ]$/.test(e.data)){ e.preventDefault(); mfExitSup(sup); if (e.data !== " ") mfInsertText(e.data); changed(); }
+  });
+  el.addEventListener("keydown", function(e){
+    if (e.key === "Enter"){ e.preventDefault(); onEnter(); return; }
+    var sup = mfCaretSup(el);
+    if (e.key === "ArrowRight" && sup && mfAtSupEnd(sup)){ e.preventDefault(); mfExitSup(sup); changed(); return; }
+    if (e.key === "Backspace" && sup && mfToText(sup) === ""){
+      e.preventDefault();
+      var prev = sup.previousSibling, nx = sup.nextSibling;
+      sup.parentNode.removeChild(sup);
+      if (nx && nx.nodeType === 3 && nx.nodeValue === ZW) nx.parentNode.removeChild(nx);
+      if (prev && prev.nodeType === 3) mfPlace(prev, prev.length); else mfPlace(el, 0);
+      changed();
+    }
+  });
+  el.addEventListener("paste", function(e){ e.preventDefault(); mfInsertText((e.clipboardData || window.clipboardData).getData("text").replace(/\s*\n\s*/g, " ")); changed(); });
+  el.addEventListener("input", changed);
+}
+var mfSaved = null;   // last caret position inside the field, so the insert buttons know where to type
+document.addEventListener("selectionchange", function(){
+  document.querySelectorAll(".mfield .xbox.active").forEach(function(s){ s.classList.remove("active"); });
+  var el = document.querySelector(".mfield"); if (!el) return;
+  var sel = getSelection(); if (sel.rangeCount && el.contains(sel.anchorNode)) mfSaved = sel.getRangeAt(0).cloneRange();
+  var sup = mfCaretSup(el); if (sup) sup.classList.add("active");
+});
+function mfFocusEnd(el){ el.focus(); var last = el.lastChild; if (last && last.nodeType === 3) mfPlace(last, last.length); else mfPlace(el, el.childNodes.length); }
+
+/* ---------- Rendering ---------- */
+function renderNav(){
+  var nav = $("#levelNav"), h = "";
+  LEVELS.forEach(function(L){
+    var st = state.lv[L.n], open = unlocked(L.n);
+    var cls = "lvbtn" + (L.n === state.cur ? " current" : "") + (st.done ? " done" : "");
+    h += '<button class="' + cls + '" data-lv="' + L.n + '"' + (open ? "" : " disabled") + '>' + (st.done ? "✓ " : (open ? "" : "🔒 ")) + "Level " + L.n + "</button>";
+  });
+  if (SHOW_COMING_SOON) h += '<button class="lvbtn soon" disabled>Level ' + (LEVELS.length + 1) + " · coming soon</button>";
+  nav.innerHTML = h;
+  nav.querySelectorAll("[data-lv]").forEach(function(b){
+    b.addEventListener("click", function(){ state.cur = +b.dataset.lv; save(); render(); window.scrollTo(0, 0); });
+  });
+  var cur = nav.querySelector(".current"); if (cur) cur.scrollIntoView({ inline: "center", block: "nearest" });
+  $("#champBtn").hidden = !allDone();
+  renderTeacher();
+}
+function fbBox(id, fb){ return '<div class="fb' + (fb ? " show " + fb.kind : "") + '" id="' + id + '" aria-live="polite">' + (fb ? fb.html : "") + "</div>"; }
+
+function render(){
+  renderNav();
+  var L = getLevel(state.cur), st = state.lv[L.n];
+  if (!st.prob){ st.prob = L.gen(st); st.solved = false; st.fb = null; st.parts = {}; st.method = null; st.exTab = null; save(); }
+  var p = st.prob, next = getLevel(L.n + 1);
+
+  var dots = ""; for (var i = 0; i < L.need; i++) dots += '<span class="dot' + (i < st.correct ? " on" : "") + '"></span>';
+  var status = st.done ? "Level complete. Extra problems are for practice."
+    : "Correct answers: " + Math.min(st.correct, L.need) + " of " + L.need + " needed to unlock Level " + (L.n + 1) + ".";
+
+  // worked example
+  var key = st.exTab || L.defaultTab(p, st);
+  var ex = L.examples.filter(function(e){ return e.key === key; })[0] || L.examples[0];
+  var tabs = L.examples.map(function(e){ return '<button class="tab" role="tab" data-tab="' + esc(e.key) + '" aria-selected="' + (e === ex) + '">' + e.tab + "</button>"; }).join("");
+  var exData = st.exHidden ? null : ex.build();
+  var exBody = exData ? '<div class="tabs" role="tablist">' + tabs + "</div>" + '<p class="given">' + exData.given + "</p>" +
+    stepsTable(exData.rows, false) + (exData.after ? '<p class="after">' + exData.after + "</p>" : "") : "";
+
+  // problem
+  var body = '<p class="task task-lines">' + L.task(p) + "</p>", active = null, activeIdx = -1, parts = [];
+  if (L.methods && !st.method){
+    body += '<div class="stepbox"><h4>Choose a method</h4><div class="methods">' +
+      L.methods.map(function(mm){ return '<button class="go secondary" data-method="' + mm.key + '">' + mm.label + "</button>"; }).join("") + "</div></div>";
+  } else {
+    parts = L.parts(p, st);
+    parts.forEach(function(pt, idx){
+      var s = ps(st, pt.id);
+      if (s.done){
+        body += '<div class="stepbox locked"><h4><span class="badge">✓</span>' + pt.title + "</h4><p class=\"m\" style=\"margin:0;white-space:normal\">" + pt.locked + "</p></div>";
+        return;
+      }
+      if (active) return;
+      active = pt; activeIdx = idx;
+      var wide = pt.kind === "text";
+      body += '<div class="stepbox"><h4><span class="badge">' + (idx + 1) + "</span>" + pt.title + "</h4>" +
+        (pt.intro ? '<p style="margin:0 0 .5rem">' + pt.intro + "</p>" : "") +
+        '<div class="ansrow' + (wide ? " wrap" : "") + '">' + m(pt.label) +
+          (wide ? '<div class="mfield" id="pin" contenteditable="true" role="textbox" aria-label="Your answer" autocapitalize="off" autocorrect="off" spellcheck="false"></div></div>'
+               : '<input class="ans" id="pin" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="Your answer" value="' + esc(s.input || "") + '"></div>') +
+        (pt.insert ? '<div class="ins">' + pt.insert.map(function(b, k){ return '<button class="insbtn" data-ins="' + k + '">' + b.label + "</button>"; }).join("") + "</div>" : "") +
+        (wide ? '<p class="preview" id="preview"></p>' : "") +
+        '<p class="tip">' + (wide ? (pt.tip || "") : "Type one whole number, like 14 or −7.") + "</p>" +
+        '<div class="actions"><button class="go" id="checkBtn">Check</button></div>' + fbBox("fb", s.fb) + "</div>";
+    });
+    if (L.methods && !st.solved) body += '<p class="switch"><button class="linkbtn" id="switchBtn">Switch to the other method</button></p>';
+  }
+  if (st.solved){
+    body += fbBox("donefb", st.fb) + '<div class="actions" style="margin-top:.8rem"><button class="go secondary" id="anotherBtn">Try another Level ' + L.n + " problem</button>" +
+      (st.done && next ? '<button class="go" id="nextBtn">Go to Level ' + next.n + "</button>" : "") +
+      (st.done && !next && allDone() ? '<button class="go" id="champBtn2">🎸 Completed page</button>' : "") + "</div>";
+  }
+
+  $("#main").innerHTML =
+    '<section class="card">' +
+      '<div class="lv-head"><span class="lv-num">Level ' + L.n + "</span><h2>" + L.title + "</h2></div>" +
+      '<p class="intro">' + L.intro + "</p>" +
+      '<div class="dots" aria-hidden="true">' + dots + "</div>" +
+      '<p class="status' + (st.done ? " done" : "") + '">' + status + "</p>" +
+    "</section>" +
+    '<section class="card">' +
+      '<div class="ex-top"><h3>Worked example</h3><button class="linkbtn" id="exToggle">' + (st.exHidden ? "Show example" : "Hide example") + "</button></div>" +
+      exBody +
+    "</section>" +
+    '<section class="card prob"><h3>Your problem</h3>' + body + "</section>";
+
+  // wire up
+  $("#exToggle").addEventListener("click", function(){ st.exHidden = !st.exHidden; save(); render(); });
+  document.querySelectorAll("[data-tab]").forEach(function(b){ b.addEventListener("click", function(){ st.exTab = b.dataset.tab; save(); render(); }); });
+  document.querySelectorAll("[data-method]").forEach(function(b){
+    b.addEventListener("click", function(){ st.method = b.dataset.method; st.parts = {}; save(); render(); focusInput(); });
+  });
+  if ($("#switchBtn")) $("#switchBtn").addEventListener("click", function(){ st.method = null; st.parts = {}; save(); render(); });
+  var input = $("#pin");
+  if (input && active){
+    var s = ps(st, active.id), isMF = input.classList.contains("mfield");
+    var upd = function(){
+      s.input = isMF ? mfToText(input) : input.value; save();
+      var pv = $("#preview"); if (!pv) return;
+      var n = norm(s.input); pv.innerHTML = n ? "Reads as: " + m(active.label + " " + pretty(n)) : "";
+    };
+    if (isMF){
+      mfFromText(input, s.input || "");
+      mfAttach(input, upd, checkActive);
+      document.querySelectorAll("[data-ins]").forEach(function(b){
+        b.addEventListener("mousedown", function(e){ e.preventDefault(); });   // keep the caret in the field
+        b.addEventListener("click", function(){
+          var spec = active.insert[+b.dataset.ins];
+          input.focus();
+          if (mfSaved && input.contains(mfSaved.startContainer)){ var sel = getSelection(); sel.removeAllRanges(); sel.addRange(mfSaved); } else mfFocusEnd(input);
+          if (spec.sup) mfOpenSup(input, spec.sup);
+          else { var sup = mfCaretSup(input); if (sup) mfExitSup(sup); mfInsertText(spec.text); for (var k = 0; k < spec.back; k++) getSelection().modify("move", "backward", "character"); }
+          mfTidy(input); upd();
+        });
+      });
+    } else {
+      input.addEventListener("input", upd);
+      input.addEventListener("keydown", function(e){ if (e.key === "Enter") checkActive(); });
+    }
+    upd();
+    $("#checkBtn").addEventListener("click", checkActive);
+  }
+  if ($("#anotherBtn")) $("#anotherBtn").addEventListener("click", function(){ st.prob = null; save(); render(); focusInput(); });
+  if ($("#nextBtn")) $("#nextBtn").addEventListener("click", function(){ state.cur = next.n; save(); render(); window.scrollTo(0, 0); });
+  if ($("#champBtn2")) $("#champBtn2").addEventListener("click", showChampion);
+}
+function focusInput(){ setTimeout(function(){ var i = $("#pin"); if (!i) return; if (i.classList.contains("mfield")) mfFocusEnd(i); else i.focus(); }, 0); }
+
+function checkActive(){
+  var L = getLevel(state.cur), st = state.lv[L.n];
+  if (st.solved) return;                         // a solved problem can never count twice
+  var parts = L.parts(st.prob, st), idx = -1;
+  for (var i = 0; i < parts.length; i++) if (!ps(st, parts[i].id).done){ idx = i; break; }
+  if (idx < 0) return;
+  var pin = $("#pin"), pt = parts[idx], s = ps(st, pt.id), raw = pin.classList.contains("mfield") ? mfToText(pin) : pin.value;
+  s.input = raw;
+  var res = pt.check(raw, s);
+  if (!res.ok){ s.fb = res.fb; save(); render(); var e = $("#pin"); if (e){ if (e.classList.contains("mfield")) mfFocusEnd(e); else { e.focus(); e.select(); } } return; }
+  s.done = true; s.fb = null;
+  if (idx < parts.length - 1){ save(); render(); focusInput(); return; }
+  st.solved = true; st.correct++;
+  if (L.onSolved) L.onSolved(st, st.prob);
+  var justFinished = !st.done && st.correct >= L.need;
+  if (justFinished) st.done = true;
+  st.fb = { kind: "good", html: '<p class="lead">Correct! ' + pt.locked + "</p>" + (justFinished ? "<p>Level " + L.n + " complete!</p>" : "") };
+  save(); render();
+  if (justFinished){
+    if (allDone() && !state.champSeen){ state.champSeen = true; save(); setTimeout(showChampion, 1400); }
+    else fireworks(2800);
+  }
+}
+
+/* ---------- Completed page: a walker goes through the Function Machine ---------- */
+var fmTimer = null;
+function fmPose(x, legA, armA, armUp, bob){
+  $("#fmFig").setAttribute("transform", "translate(" + x + " " + (bob || 0) + ")");
+  $("#fmLegL").setAttribute("transform", "rotate(" + legA + " 0 282)");
+  $("#fmLegR").setAttribute("transform", "rotate(" + (-legA) + " 0 282)");
+  $("#fmArmL").setAttribute("transform", "rotate(" + (armUp ? 125 : -armA) + " 0 250)");
+  $("#fmArmR").setAttribute("transform", "rotate(" + (armUp ? -125 : armA) + " 0 250)");
+}
+function fmBulbs(fn){ document.querySelectorAll("#fmBulbs circle").forEach(function(c, i){
+  var on = fn(i); c.setAttribute("fill", on ? "#FFCB05" : "#3a4f66"); if (on) c.setAttribute("filter", "url(#bulbGlow)"); else c.removeAttribute("filter"); }); }
+function fmGears(a){ $("#fmGear1").setAttribute("transform", "rotate(" + a + " 335 272)"); $("#fmGear2").setAttribute("transform", "rotate(" + (-a) + " 385 272)"); }
+function fmFinal(){
+  fmPose(610, 7, 0, true, 0); $("#fmShades").setAttribute("opacity", 1);
+  $("#fmIdle").setAttribute("opacity", 0); $("#fmEval").setAttribute("opacity", 0); $("#fmDone").setAttribute("opacity", 1);
+  $("#fmSparks").setAttribute("opacity", 1); $("#fmMachine").removeAttribute("transform");
+  fmBulbs(function(){ return true; }); $("#champMsg").classList.add("show");
+}
+function playMachine(){
+  if (fmTimer) cancelAnimationFrame(fmTimer);
+  $("#champMsg").classList.remove("show");
+  $("#fmShades").setAttribute("opacity", 0); $("#fmSparks").setAttribute("opacity", 0);
+  $("#fmIdle").setAttribute("opacity", .35); $("#fmEval").setAttribute("opacity", 0); $("#fmDone").setAttribute("opacity", 0);
+  fmBulbs(function(){ return false; }); fmGears(0);
+  if (window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches){ fmFinal(); return; }
+  var WALK_IN = 2000, EVAL = 2800, WALK_OUT = 1800, start = performance.now(), fired = false;
+  function frame(now){
+    var t = now - start, swing = Math.sin(t / 95) * 24, bob = -Math.abs(Math.sin(t / 95)) * 3;
+    if (t < WALK_IN){                                            // walk up to the machine and in through IN
+      fmPose(40 + 300 * (t / WALK_IN), swing, swing * 0.8, false, bob);
+    } else if (t < WALK_IN + EVAL){                              // inside: lights, gears, flashing EVALUATING (2.8 s)
+      var e = t - WALK_IN;
+      fmPose(360, 0, 0, false, 0);
+      $("#fmIdle").setAttribute("opacity", 0);
+      $("#fmEval").setAttribute("opacity", Math.floor(e / 230) % 2 ? 0.25 : 1);
+      fmBulbs(function(i){ return (Math.floor(e / 140) + i) % 2 === 0; });
+      fmGears(e * 0.35);
+      $("#fmMachine").setAttribute("transform", "translate(" + (Math.sin(e / 30) * 1.2) + " 0)");
+    } else if (t < WALK_IN + EVAL + WALK_OUT){                   // walk out through OUT, now in sunglasses
+      var o = (t - WALK_IN - EVAL) / WALK_OUT;
+      $("#fmMachine").removeAttribute("transform"); $("#fmEval").setAttribute("opacity", 0);
+      fmBulbs(function(){ return true; });
+      $("#fmShades").setAttribute("opacity", 1);
+      fmPose(440 + 170 * o, swing, swing * 0.8, false, bob);
+    } else {                                                     // neon flickers on
+      var n = t - WALK_IN - EVAL - WALK_OUT;
+      var air = n < 600 ? Math.sin(Math.PI * n / 600) : 0;          // one jump, then land with feet just apart
+      fmPose(610, n < 600 ? 14 : 7, 0, true, -air * 42);
+      var flick = [1, 0, 1, 0.2, 1, 0.5, 1];
+      $("#fmDone").setAttribute("opacity", n < 700 ? flick[Math.floor(n / 100)] : 1);
+      $("#fmSparks").setAttribute("opacity", n < 700 ? 0 : 1);
+      if (!fired){ fired = true; fireworks(5600); }
+      if (n >= 700){ fmFinal(); return; }
+    }
+    fmTimer = requestAnimationFrame(frame);
+  }
+  fmTimer = requestAnimationFrame(frame);
+}
+function showChampion(){ $("#champion").hidden = false; $("#champClose").focus(); playMachine(); }
+$("#champReplay").addEventListener("click", playMachine);
+$("#champBtn").addEventListener("click", showChampion);
+$("#champClose").addEventListener("click", function(){ $("#champion").hidden = true; });
+
+/* ---------- Start over (on-page confirmation, never a browser pop-up) ---------- */
+$("#resetBtn").addEventListener("click", function(){ $("#confirm").hidden = false; $("#confirmNo").focus(); });
+$("#confirmNo").addEventListener("click", function(){ $("#confirm").hidden = true; });
+$("#confirmYes").addEventListener("click", function(){
+  try { localStorage.removeItem(KEY); } catch (e) {}
+  state = fresh(); save(); $("#confirm").hidden = true; render(); window.scrollTo(0, 0);
+});
+
+/* ---------- Fireworks ---------- */
+var fxTimer = null;
+function fireworks(ms){
+  if (window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+  var cv = $("#fx"), ctx = cv.getContext("2d"), dpr = window.devicePixelRatio || 1;
+  cv.width = innerWidth * dpr; cv.height = innerHeight * dpr; ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  var colors = ["#FFCB05", "#ffffff", "#5ad08d", "#7fb2ff", "#ffe27a"];
+  var parts = [], start = performance.now(), lastBurst = 0;
+  if (fxTimer) cancelAnimationFrame(fxTimer);
+  function burst(){
+    var x = innerWidth * (0.15 + Math.random() * 0.7), y = innerHeight * (0.12 + Math.random() * 0.4), c = pick(colors), n = 46;
+    for (var i = 0; i < n; i++){ var a = (Math.PI * 2 * i) / n, sp = 1.8 + Math.random() * 3.2;
+      parts.push({ x: x, y: y, vx: Math.cos(a) * sp, vy: Math.sin(a) * sp, life: 1, c: Math.random() < 0.2 ? "#fff" : c }); }
+  }
+  function frame(t){
+    var el = t - start;
+    if (el < ms && t - lastBurst > 320){ burst(); lastBurst = t; }
+    ctx.clearRect(0, 0, innerWidth, innerHeight);
+    parts.forEach(function(q){ q.x += q.vx; q.y += q.vy; q.vy += 0.05; q.vx *= 0.985; q.life -= 0.013;
+      ctx.globalAlpha = Math.max(q.life, 0); ctx.fillStyle = q.c; ctx.beginPath(); ctx.arc(q.x, q.y, 2.6, 0, 6.283); ctx.fill(); });
+    parts = parts.filter(function(q){ return q.life > 0; });
+    ctx.globalAlpha = 1;
+    if (el < ms || parts.length) fxTimer = requestAnimationFrame(frame); else ctx.clearRect(0, 0, innerWidth, innerHeight);
+  }
+  fxTimer = requestAnimationFrame(frame);
+}
+
+/* ---------- Teacher tab: a passphrase unlocks every level on this device ---------- */
+// Only a hash of the passphrase is stored, so it can't be read from the page source.
+var TEACHER_HASH = 2754271164532061, teacherOpen = false, teacherMsg = "";
+function cyrb53(str){
+  var h1 = 0xdeadbeef, h2 = 0x41c6ce57;
+  for (var i = 0, ch; i < str.length; i++){ ch = str.charCodeAt(i); h1 = Math.imul(h1 ^ ch, 2654435761); h2 = Math.imul(h2 ^ ch, 1597334677); }
+  h1 = Math.imul(h1 ^ (h1 >>> 16), 2246822507); h1 ^= Math.imul(h2 ^ (h2 >>> 13), 3266489909);
+  h2 = Math.imul(h2 ^ (h2 >>> 16), 2246822507); h2 ^= Math.imul(h1 ^ (h1 >>> 13), 3266489909);
+  return 4294967296 * (2097151 & h2) + (h1 >>> 0);
+}
+function renderTeacher(){
+  var el = $("#teacher"); if (!el) return;
+  if (!teacherOpen){
+    el.innerHTML = '<button class="linkbtn" id="tOpen">Teacher</button>' + (state.teacher ? ' <span class="t-on">Every level is unlocked on this device.</span>' : "");
+    $("#tOpen").addEventListener("click", function(){ teacherOpen = true; teacherMsg = ""; renderTeacher(); var i = $("#tPass"); if (i) i.focus(); });
+    return;
+  }
+  if (state.teacher){
+    el.innerHTML = '<div class="tpanel"><h3>Teacher</h3><p>Every level is unlocked on this device. Student progress is kept.</p><div class="actions">' +
+      '<button class="go secondary" id="tChamp">Preview completed page</button><button class="go secondary" id="tLock">Lock levels again</button><button class="linkbtn" id="tClose">Close</button></div></div>';
+    $("#tChamp").addEventListener("click", showChampion);
+    $("#tLock").addEventListener("click", function(){
+      state.teacher = false;
+      while (state.cur > 1 && !state.lv[state.cur - 1].done) state.cur--;
+      save(); render();
+    });
+  } else {
+    el.innerHTML = '<div class="tpanel"><h3>Teacher</h3><p>Enter the passphrase to unlock every level on this device.</p>' +
+      '<input type="password" id="tPass" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="Teacher passphrase">' +
+      '<div class="actions" style="margin-top:.6rem"><button class="go" id="tUnlock">Unlock levels</button><button class="linkbtn" id="tClose">Close</button></div>' +
+      (teacherMsg ? '<p class="t-msg">' + teacherMsg + "</p>" : "") + "</div>";
+    var tryUnlock = function(){
+      if (cyrb53($("#tPass").value.trim().toLowerCase()) === TEACHER_HASH){ state.teacher = true; teacherMsg = ""; save(); render(); }
+      else { teacherMsg = "That passphrase doesn’t match."; renderTeacher(); var i = $("#tPass"); if (i) i.focus(); }
+    };
+    $("#tUnlock").addEventListener("click", tryUnlock);
+    $("#tPass").addEventListener("keydown", function(e){ if (e.key === "Enter") tryUnlock(); });
+  }
+  $("#tClose").addEventListener("click", function(){ teacherOpen = false; renderTeacher(); });
+}
+
+state = load();
+render();
+})();
+</script>
+</body>
+</html>
